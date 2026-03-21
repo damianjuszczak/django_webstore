@@ -26,6 +26,6 @@ def get_links():
         'icon': 'fa-envelope',
     }, {
         'name': 'Cart',
-        'href': '/about',
+        'href': '/cart',
         'icon': 'fas fa-shopping-basket',
     }]
