@@ -11,9 +11,11 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     return render(request, 'main/index.html')
 
+def cart(request):
+    return render(request, "main/cart.html")
 
 def about(request):
-    return render(request, 'main/about.html')
+    return render(request, 'main.about.html')
 
 # Using the Django authentication system (Django Documentation)
 # https://docs.djangoproject.com/en/5.1/topics/auth/default/
