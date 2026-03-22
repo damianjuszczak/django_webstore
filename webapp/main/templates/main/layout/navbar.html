@@ -10,26 +10,48 @@
       <span>Django Store</span>
     </a>
     
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="topNavbar">
       <ul class="navbar-nav mx-auto gap-4 mb-2 mb-lg-0">
+
         {% for link in links %}
-        <li class="nav-item">
+        <li class="nav-item {% if link.children %}dropdown{% endif %}">
+
+          {% if link.children %}
+
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fa-solid {{ link.icon }}"></i> {{ link.name }}
+            </a>
+
+          <ul class="dropdown-menu">
+            {% for child in link.children %}
+              <li>
+                <a class="dropdown-item" href="{{ child.href }}">
+                  {{ child.name }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+
+          {% else %}
           <a class="nav-link {% if request.path == link.href %}active{% endif %}" href="{{ link.href }}">
             <i class="fa-solid {{ link.icon }}"></i> {{ link.name }}
           </a>
+          {% endif %}
+
         </li>
         {% endfor %}
+
       </ul>
       
       <div class="d-flex align-items-center gap-3">
         {% if request.user.is_authenticated %}
         <div class="dropdown">
-          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <img src="https://github.com/mdo.png" width="32" height="32" class="rounded-circle me-2">
             <strong>{{ request.user.username }}</strong>
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow mt-2">

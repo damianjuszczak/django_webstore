@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     return render(request, 'main/index.html')
 
+def contact(request):
+    return render(request, "main/contact.html")
 def cart(request):
     return render(request, "main/cart.html")
 
