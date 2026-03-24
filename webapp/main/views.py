@@ -1,7 +1,8 @@
 # Plik do definiowania widoków, które są renderowane za pomocą szablonizatora Jinja oraz wyświetlane w przeglądarce
-
+from .models import Product
+from .cart import Cart
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages #to show message back for errors
@@ -9,12 +10,28 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
-    return render(request, 'main/index.html')
+    products = Product.objects.filter(is_available=True)
+    
+    return render(request, 'main/index.html', {'products': products})
 
 def contact(request):
     return render(request, "main/contact.html")
+
+def cart_add(request, product_id):
+    cart = Cart(request)
+    product = get_object_or_404(Product, id=product_id)
+    cart.add(product)
+    return redirect('cart')
+
+def cart_remove(request, product_id):
+    cart = Cart(request)
+    product = get_object_or_404(Product, id=product_id)
+    cart.remove(product)
+    return redirect('cart')
+
 def cart(request):
-    return render(request, "main/cart.html")
+    cart = Cart(request)
+    return render(request, 'main/cart.html', {'cart': cart})
 
 def about(request):
     return render(request, 'main.about.html')

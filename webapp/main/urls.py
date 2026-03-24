@@ -4,12 +4,18 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Standard pages
     path('', views.index, name='home'),
     path('about', views.about, name='about'),
+    path('contact', views.contact, name="contact"),
 
+    # User Authentication
     path('login', views.login_user, name='login_user'),
     path('register', views.register, name='register_user'),
     path('logout', views.logout_user, name='logout_user'),
-    path('cart', views.cart, name="cart"),
-    path('contact', views.contact, name="contact")
+    
+    # Cart URLs
+    path('cart/', views.cart, name="cart"),
+    path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
+    path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
 ]
