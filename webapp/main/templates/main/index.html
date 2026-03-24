@@ -1,12 +1,32 @@
 {% extends 'main/layout/layout.html' %}
 
-{% block title%}Homepage{% endblock %}
+{% block title %}Strona główna{% endblock %}
 
-{% block content%}
-    <h1>Homepage</h1>
-    <div class="container">
-        <p>wip</p>
-    </div>
+{% block content %}
+    <h1>Nasze Produkty</h1>
+    <hr>
 
-    {% include 'main/test.html' %}
+    <ul>
+        
+        {% for product in products %}
+            <li style="margin-bottom: 30px;">
+                
+                <h3>{{ product.name }}</h3>
+                <p><strong>Producent:</strong> {{ product.manufacturer.name }}</p>
+                <p><strong>Cena:</strong> {{ product.price }} PLN</p>
+                <p>{{ product.description }}</p>
+
+                <form action="{% url 'cart_add' product.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Dodaj do koszyka</button>
+                </form>
+
+            </li>
+            
+        {% empty %}
+            <p>Brak produktów w sklepie.</p>
+        {% endfor %}
+
+    </ul>
+
 {% endblock %}

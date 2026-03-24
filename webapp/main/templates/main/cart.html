@@ -1,12 +1,44 @@
 {% extends 'main/layout/layout.html' %}
 
-{% block title%}Homepage{% endblock %}
+{% block title %}Twój koszyk{% endblock %}
 
-{% block content%}
+{% block content %}
     <h1>Twój koszyk</h1>
-    <div class="container">
-        <p>wip</p>
-    </div>
+    <hr> {% if cart|length > 0 %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Produkt</th>
+                    <th>Ilość</th>
+                    <th>Cena za szt.</th>
+                    <th>Razem</th>
+                    <th>Akcja</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.product.price }} PLN</td>
+                    <td>{{ item.total_price }} PLN</td>
+                    <td>
+                        <a href="{% url 'cart_remove' item.product.id %}" class="btn btn-danger btn-sm">Usuń</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="text-end mt-4">
+            <h3>Suma całkowita: {{ cart.get_total_price }} PLN</h3>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">Kontynuuj zakupy</a>
+            <a href="#" class="btn btn-success">Przejdź do kasy</a>
+        </div>
 
-    {% include 'main/test.html' %}
+    {% else %}
+        <p>Twój koszyk jest obecnie pusty.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Przeglądaj produkty</a>
+    {% endif %}
+
 {% endblock %}
