@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.index, name='home'),
     path('about', views.about, name='about'),
     path('contact', views.contact, name="contact"),
+    path('product/<slug:slug>/', views.index, name='product_details'),
 
     # User Authentication
     path('login', views.login_user, name='login_user'),

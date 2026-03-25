@@ -3,30 +3,61 @@
 {% block title %}Strona główna{% endblock %}
 
 {% block content %}
-    <h1>Nasze Produkty</h1>
-    <hr>
-
-    <ul>
-        
+<div class="container mt-5">
+    <h1 class="mb-4 text-center fw-bold">Nasze Produkty</h1>
+    <hr class="mb-5">
+    
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for product in products %}
-            <li style="margin-bottom: 30px;">
-                
-                <h3>{{ product.name }}</h3>
-                <p><strong>Producent:</strong> {{ product.manufacturer.name }}</p>
-                <p><strong>Cena:</strong> {{ product.price }} PLN</p>
-                <p>{{ product.description }}</p>
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                {% if product.images.all %}
+                    {% for img in product.images.all %}
+                        {% if img.main_photo %}
+                            <img src="{{ img.image.url }}" class="card-img-top" alt="{{ img.alt_text }}" style="height: 250px; object-fit: cover;">
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <span>Brak zdjęcia</span>
+                    </div>
+                {% endif %}
 
-                <form action="{% url 'cart_add' product.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit">Dodaj do koszyka</button>
-                </form>
-
-            </li>
-            
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                        <span class="badge bg-primary">{{ product.manufacturer.name }}</span>
+                    </div>
+                    <h5 class="card-title fw-bold">{{ product.name }}</h5>
+                    <p class="card-text text-muted flex-grow-1" style="font-size: 0.9rem;">
+                        {{ product.description|truncatewords:20 }}
+                    </p>
+                    
+                    <div class="mt-3">
+                        <p class="h4 text-dark mb-3">{{ product.price }} PLN</p>
+                        
+                        <form action="{% url 'cart_add' product.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100 shadow-sm">
+                                <i class="bi bi-cart-plus"></i> Dodaj do koszyka
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <a href="{{ product.get_absolute_url }}" class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
+                        Szczegóły produktu →
+                    </a>
+                </div>
+            </div>
+        </div>
         {% empty %}
-            <p>Brak produktów w sklepie.</p>
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <h3>Obecnie nie mamy żadnych produktów.</h3>
+                <p>Zajrzyj do nas później!</p>
+            </div>
+        </div>
         {% endfor %}
-
-    </ul>
-
+    </div>
+</div>
 {% endblock %}
