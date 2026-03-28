@@ -1,14 +1,15 @@
-# Plik do definiowania widoków, które są renderowane za pomocą szablonizatora Jinja oraz wyświetlane w przeglądarce
+
 from .models import Product
 from .cart import Cart
+
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
-from django.contrib import messages #to show message back for errors
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
-# Create your views here.
+
 def index(request):
     products = Product.objects.filter(is_available=True)
     
@@ -34,7 +35,11 @@ def cart(request):
     return render(request, 'main/cart.html', {'cart': cart})
 
 def about(request):
-    return render(request, 'main.about.html')
+    return render(request, 'main/about.html')
+
+@login_required
+def profile_view(request):
+    return render(request, 'main/account/profile.html', {'user': request.user})
 
 # Using the Django authentication system (Django Documentation)
 # https://docs.djangoproject.com/en/5.1/topics/auth/default/
@@ -57,18 +62,30 @@ def login_user(request):
     if request.GET.get('next'):
         request.session['next'] = request.GET['next']
 
-    return render(request, 'main/users/login.html')
+    return render(request, 'main/account/login.html')
 
 def register(request):
     if request.user.is_authenticated:
          return redirect('home')
     
     if request.method == 'POST':
-        user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = User.objects.create_user(username=username, email=email, password=password)
+
+        profile = user.profile 
+        profile.phone = request.POST.get('phone', '')
+        profile.adress = request.POST.get('adsress', '') 
+        profile.city = request.POST.get('city', '')
+        profile.zip_code = request.POST.get('zip_code', '')
+        profile.country = request.POST.get('country', 'Polska')
+
         login(request, user)
         return redirect('home')
     
-    return render(request, 'main/users/register.html')
+    return render(request, 'main/account/register.html')
 
 def logout_user(request):
     logout(request)
