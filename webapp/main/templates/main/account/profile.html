@@ -1,0 +1,24 @@
+{% extends 'main/layout/layout.html' %}
+
+{% block title %}Strona główna{% endblock %}
+
+{% block content %}
+    <h1>Twoje konto</h1>
+    <hr>
+<div class="profile-card">
+    {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="Avatar" width="150">
+    {% endif %}
+    
+    <p><strong>Użytkownik:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Telefon:</strong> {{ user.profile.phone }}</p>
+    <p><strong>Adres:</strong> {{ user.profile.adress }}, {{ user.profile.city }}</p>
+    <p><strong>Kraj:</strong> {{ user.profile.country }}</p>
+    
+    <p><strong>Newsletter:</strong> 
+        {% if user.profile.newsletter %} Tak {% else %} Nie {% endif %}
+    </p>
+</div>
+
+{% endblock %}
