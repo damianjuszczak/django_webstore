@@ -56,7 +56,6 @@ def login_user(request):
              
              return redirect('home')
          else:
-             messages.error(request, 'Invalid credentials')
              return redirect('login_user')
          
     if request.GET.get('next'):
@@ -74,13 +73,16 @@ def register(request):
         password = request.POST.get('password')
 
         user = User.objects.create_user(username=username, email=email, password=password)
-
+        user.refresh_from_db()
+        
         profile = user.profile 
         profile.phone = request.POST.get('phone', '')
         profile.adress = request.POST.get('adsress', '') 
         profile.city = request.POST.get('city', '')
         profile.zip_code = request.POST.get('zip_code', '')
         profile.country = request.POST.get('country', 'Polska')
+        
+        messages.success(request, "Twoje konto zostało pomyślnie utworzone.")
 
         login(request, user)
         return redirect('home')
