@@ -1,5 +1,5 @@
 
-from .models import Product
+from .models import Product, Profile
 from .cart import Cart
 
 from django.http import HttpResponse
@@ -73,18 +73,19 @@ def register(request):
         password = request.POST.get('password')
 
         user = User.objects.create_user(username=username, email=email, password=password)
-        user.refresh_from_db()
         
-        profile = user.profile 
+        profile, created = Profile.objects.get_or_create(user=user)
+        
         profile.phone = request.POST.get('phone', '')
-        profile.adress = request.POST.get('adsress', '') 
+        profile.address = request.POST.get('adress', '') 
         profile.city = request.POST.get('city', '')
         profile.zip_code = request.POST.get('zip_code', '')
         profile.country = request.POST.get('country', 'Polska')
         
+        profile.save()
+        
         messages.success(request, "Twoje konto zostało pomyślnie utworzone.")
-
-        login(request, user)
+        login(request, user)    
         return redirect('home')
     
     return render(request, 'main/account/register.html')
