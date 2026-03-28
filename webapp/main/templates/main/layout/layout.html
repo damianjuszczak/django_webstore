@@ -20,28 +20,17 @@
             {% endblock%}
         </div>
     </main>
-    <div class="notifications-container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="notification-item notification-{{ message.tags }}">
-                    <span>{{ message }}</span>
-                    <button onclick="this.parentElement.remove()" style="background:none; border:none; color:inherit; cursor:pointer; font-size:20px; margin-left:15px;">&times;</button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const notifications = document.querySelectorAll('.notification-item');
-            notifications.forEach(notification => {
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    notification.style.transition = 'opacity 0.5s ease';
-                    setTimeout(() => notification.remove(), 500);
-                }, 5000);
-            });
-        });
-    </script>
+        <div class="notifications-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="notification-item notification-{{ message.tags }}">
+                        <span>{{ message }}</span>
+                        <button type="button" class="btn-close notofication-close-js" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    <script src="{% static 'main/js/notifications.js' %}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
