@@ -48,15 +48,22 @@ def login_user(request):
         return redirect('home')
      
     if request.method == 'POST':
-         user = authenticate(username=request.POST['username'], password=request.POST['password'])
-         if user is not None:
-             login(request, user)
-             if request.session.get('next'):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f"Pomyślnie zalogowano. Cieszymy się, że z nami jesteś!")
+            
+            if request.session.get('next'):
                 return redirect(request.session.pop('next'))
              
-             return redirect('home')
-         else:
-             return redirect('login_user')
+            return redirect('home')
+        else:
+            messages.error(request, "Nieprawidłowy login lub hasło.")
+            return redirect('login_user')
          
     if request.GET.get('next'):
         request.session['next'] = request.GET['next']
@@ -92,7 +99,7 @@ def register(request):
 
 def logout_user(request):
     logout(request)
-     
+    messages.success(request, "Pomyślnie wylogowano. Zapraszamy ponownie!")
     return redirect('home')
 
 @login_required
