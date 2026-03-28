@@ -70,7 +70,7 @@ class Profile(models.Model):
 
     phone = models.CharField(max_length=15, blank=True)
 
-    adress = models.CharField(max_length=255, blank=True)
+    address = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=100, blank=True)
     zip_code = models.CharField(max_length=10, blank=True)
     country = models.CharField(max_length=50, default="Polska")
