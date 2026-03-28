@@ -1,5 +1,5 @@
 {% extends 'main/layout/layout.html' %}
- 
+{% load static %}
 {% block title%}Log in{% endblock %}
  
 {% block content%}
@@ -7,13 +7,6 @@
      <div style="max-width: 500px" class="w-100">
          <h1>Log in</h1>
          {% if messages %}
-         <div class="alert alert-danger" role="alert">
-           <ul class="mb-0">
-             {% for message in messages %}
-            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-             {% endfor %}
-           </ul>
-         </div>
          
          {% endif %}
          <form method="POST" action="/login">
