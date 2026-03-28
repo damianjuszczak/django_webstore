@@ -19,7 +19,10 @@
     align-items: center;
     animation: slideIn 0.3s ease-out;
 }
-
+.btn-close {
+    font-size: 20px; 
+    margin-left:15px;
+}
 .notification-success { background-color: #28a745; }
 .notification-error { background-color: #dc3545; }
 .notification-warning { background-color: #ffc107; color: #212529; }
