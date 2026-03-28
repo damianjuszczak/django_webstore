@@ -91,3 +91,13 @@ def logout_user(request):
     logout(request)
      
     return redirect('home')
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        messages.success(request, "Twoje konto zostało pomyślnie usunięte.")
+        return redirect('home')
+    
+    return redirect('profile')

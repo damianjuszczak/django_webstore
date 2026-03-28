@@ -21,4 +21,14 @@
     </p>
 </div>
 
+
+<hr>
+<div class="mt-4">
+    <form action="{% url 'delete_account' %}" method="POST" onsubmit="return confirm('Czy na pewno chcesz trwale usunąć swoje konto? Tej operacji nie da się cofnąć.');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            Usuń moje konto
+        </button>
+    </form>
+</div>
 {% endblock %}
