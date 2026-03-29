@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nazwa kategorii")
@@ -63,3 +64,20 @@ class ProductImage(models.Model):
     class Meta:
         verbose_name = "Zdjęcie produktu"
         verbose_name_plural = "Galeria zdjęć"
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    phone = models.CharField(max_length=15, blank=True)
+
+    address = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    zip_code = models.CharField(max_length=10, blank=True)
+    country = models.CharField(max_length=50, default="Polska")
+
+    newsletter = models.BooleanField(default=False)
+
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+
+    def __str__(self):
+        return f"Profil użytkownika: {self.user.username}"
