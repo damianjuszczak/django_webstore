@@ -24,6 +24,12 @@ def cart_add(request, product_id):
     cart.add(product)
     return redirect('cart')
 
+def cart_decrement(request, product_id):
+    cart = Cart(request)
+    product = get_object_or_404(Product, id=product_id)
+    cart.decrement(product)
+    return redirect('cart')
+
 def cart_remove(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
