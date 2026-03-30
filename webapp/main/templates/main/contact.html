@@ -1,20 +1,35 @@
-{% extends 'main/layout/layout.html' %}
-
-{% block title%}Kontakt{% endblock %}
-
-{% block content%}
-    <h1>Skontaktuj się z nami</h1>
-    <form>
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-        </div>
-        <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Treść zgłoszenia/pytania</label>
-            <input type="text" class="form-control" id="exampleInputPassword1">
-        </div>
-        <button type="submit" class="btn btn-primary">Wyślij</button>
-    </form>
-
-    {% include 'main/test.html' %}
-{% endblock %}
+{% extends 'main/layout/layout.html' %} {% block title%}Kontakt{% endblock %}
+{%block content%}
+<section style="width: 100%">
+	<h1>Skontaktuj się z nami</h1>
+	<form class="row">
+		<div class="col-12 col-md-6 mb-3">
+			<label for="exampleInputEmail1" class="form-label">Email</label>
+			<input
+				type="email"
+				class="form-control"
+				id="exampleInputEmail1"
+				aria-describedby="emailHelp"
+			/>
+			<div id="emailHelp" class="form-text">
+				Nigdy nie udostępnimy Twojego adresu e-mail nikomu innemu.
+			</div>
+		</div>
+		<div class="col-12 col-md-6 mb-3">
+			<label for="exampleInputPassword1" class="form-label">Tytuł</label>
+			<input type="password" class="form-control" id="exampleInputPassword1" />
+		</div>
+		<div class="col-12 mb-3 form-floating">
+			<textarea
+				class="form-control"
+				id="floatingTextarea2"
+				style="height: 100px"
+			></textarea>
+			<label for="floatingTextarea2">Wiadomość</label>
+		</div>
+		<div class="col-12">
+			<button type="submit" class="btn btn-primary">Wyślij</button>
+		</div>
+	</form>
+</section>
+{% include 'main/test.html' %} {% endblock %}
