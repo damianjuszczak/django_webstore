@@ -32,6 +32,17 @@ class Cart:
         self.session['cart'] = self.cart
         self.session.modified = True
 
+    def decrement(self, product):
+        product_id = str(product.id)
+        if product_id in self.cart:
+            self.cart[product_id] -= 1
+            
+            if self.cart[product_id] <= 0:
+                self.remove(product)
+            else:
+                self.session['cart'] = self.cart
+                self.session.modified = True
+
     def remove(self, product):
         product_id = str(product.id)
         if product_id in self.cart:
