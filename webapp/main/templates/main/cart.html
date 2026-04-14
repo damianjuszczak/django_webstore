@@ -19,7 +19,13 @@
                 {% for item in cart %}
                 <tr>
                     <td>{{ item.product.name }}</td>
-                    <td>{{ item.quantity }}</td>
+                    <td>
+                        <a href="{% url 'cart_decrement' item.product.id %}" class="btn btn-sm btn-outline-secondary fw-bold">-</a>
+                        
+                        <span class="mx-2">{{ item.quantity }}</span>
+                        
+                        <a href="{% url 'cart_add' item.product.id %}" class="btn btn-sm btn-outline-secondary fw-bold">+</a>
+                    </td>
                     <td>{{ item.product.price }} PLN</td>
                     <td>{{ item.total_price }} PLN</td>
                     <td>
