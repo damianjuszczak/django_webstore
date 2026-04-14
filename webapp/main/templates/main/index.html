@@ -1,63 +1,101 @@
 {% extends 'main/layout/layout.html' %}
 
-{% block title %}Strona główna{% endblock %}
+{% block title %}Strona główna | Django Store{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4 text-center fw-bold">Nasze Produkty</h1>
-    <hr class="mb-5">
-    
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+<div class="container-fluid px-0 px-md-3"> <div class="position-relative overflow-hidden p-3 p-md-5 text-center bg-dark shadow-sm" 
+         style="background: linear-gradient(45deg, #1a1a1a, #2c3e50); color: white; border-radius: 0;">
+        <div class="col-md-8 p-lg-5 mx-auto my-2 my-md-5">
+            <h1 class="display-5 display-md-4 fw-bold">Witaj w Django Store</h1>
+            <p class="lead fw-normal text-white-50">Najlepsza elektronika w sieci. Sprawdź nasze okazje!</p>
+            <a class="btn btn-outline-light btn-lg rounded-pill px-4" href="#produkty">Przeglądaj ofertę</a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5" id="produkty">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold m-0">Nasze Produkty</h2>
+            <p class="text-muted mb-0">Wybrane specjalnie dla Ciebie</p>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">
+                Sortuj według
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Najnowsze</a></li>
+                <li><a class="dropdown-item" href="#">Cena: rosnąco</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
         {% for product in products %}
         <div class="col">
-            <div class="card h-100 shadow-sm border-0">
-                {% if product.images.all %}
-                    {% for img in product.images.all %}
-                        {% if img.main_photo %}
-                            <img src="{{ img.image.url }}" class="card-img-top" alt="{{ img.alt_text }}" style="height: 250px; object-fit: cover;">
-                        {% endif %}
-                    {% endfor %}
-                {% else %}
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 250px;">
-                        <span>Brak zdjęcia</span>
-                    </div>
-                {% endif %}
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift overflow-hidden">
+                <div class="position-relative">
+                    {% if product.images.all %}
+                        {% for img in product.images.all %}
+                            {% if img.main_photo %}
+                                <img src="{{ img.image.url }}" class="card-img-top" alt="{{ img.alt_text }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-muted">Brak zdjęcia</span>
+                        </div>
+                    {% endif %}
+                </div>
 
-                <div class="card-body d-flex flex-column">
+                <div class="card-body d-flex flex-column p-4">
                     <div class="mb-2">
-                        <span class="badge bg-primary">{{ product.manufacturer.name }}</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">
+                            {{ product.manufacturer.name }}
+                        </span>
                     </div>
-                    <h5 class="card-title fw-bold">{{ product.name }}</h5>
-                    <p class="card-text text-muted flex-grow-1" style="font-size: 0.9rem;">
-                        {{ product.description|truncatewords:20 }}
+                    <h5 class="card-title fw-bold text-dark mb-1">{{ product.name }}</h5>
+                    <p class="card-text text-muted small mb-3 flex-grow-1">
+                        {{ product.description|truncatewords:10 }}
                     </p>
                     
-                    <div class="mt-3">
-                        <p class="h4 text-dark mb-3">{{ product.price }} PLN</p>
-                        
-                        <form action="{% url 'cart_add' product.id %}" method="post">
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="h5 fw-bold text-dark mb-0">{{ product.price }} PLN</span>
+                        <form action="{% url 'cart_add' product.id %}" method="post" class="m-0">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-success w-100 shadow-sm">
-                                <i class="bi bi-cart-plus"></i> Dodaj do koszyka
+                            <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">
+                                <i class="bi bi-plus"></i> Do koszyka
                             </button>
                         </form>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 pb-3">
-                    <a href="{{ product.get_absolute_url }}" class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
-                        Szczegóły produktu →
+                <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4 text-center">
+                    <hr class="mt-0">
+                    <a href="{{ product.get_absolute_url }}" class="text-decoration-none small text-muted">
+                        Szczegóły produktu <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
         </div>
         {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info text-center py-5">
-                <h3>Obecnie nie mamy żadnych produktów.</h3>
-                <p>Zajrzyj do nas później!</p>
+        <div class="col-12 py-5 text-center">
+            <div class="alert alert-light border-dashed py-5">
+                <h4>Nie znaleziono produktów</h4>
+                <p>Dodaj coś w panelu administratora!</p>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
+
+<style>
+    .hover-lift {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+    }
+    .bg-light-50 { color: rgba(255,255,255,0.7); }
+</style>
 {% endblock %}
