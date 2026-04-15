@@ -33,7 +33,7 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
         {% for product in products %}
         <div class="col">
-            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift overflow-hidden">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="position-relative">
                     {% if product.images.all %}
                         {% for img in product.images.all %}
@@ -88,14 +88,4 @@
     </div>
 </div>
 
-<style>
-    .hover-lift {
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .hover-lift:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
-    }
-    .bg-light-50 { color: rgba(255,255,255,0.7); }
-</style>
 {% endblock %}
