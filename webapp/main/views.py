@@ -23,7 +23,15 @@ def cart_add(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.add(product)
-    return redirect('cart')
+    
+    messages.success(request, f'Produkt "{product.name}" został dodany do koszyka!')
+    
+    previous_url = request.META.get('HTTP_REFERER')
+    
+    if previous_url:
+        return redirect(previous_url)
+    else:
+        return redirect('home')
 
 def cart_decrement(request, product_id):
     cart = Cart(request)
