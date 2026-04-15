@@ -8,6 +8,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 
 
 def index(request):
@@ -117,3 +118,17 @@ def delete_account(request):
         return redirect('home')
     
     return redirect('profile')
+
+def search(request):
+    query = request.GET.get('q', '') 
+    products = []
+    
+    if query:
+        products = Product.objects.filter(
+            Q(name__icontains=query) | 
+            Q(manufacturer__name__icontains=query) | 
+            Q(description__icontains=query),
+            is_available=True
+        )
+        
+    return render(request, 'main/search.html', {'products': products, 'query': query})

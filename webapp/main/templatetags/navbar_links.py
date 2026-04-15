@@ -17,9 +17,9 @@ def get_links():
             ]
         },
         {
-            'name': 'Sale',
-            'href': '/sale',
-            'icon': 'fa-percent',
+            'name': 'Search',
+            'href': '/search',
+            'icon': 'fa-search',
         },
         {
             'name': 'Contact',
