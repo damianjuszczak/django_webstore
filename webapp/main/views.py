@@ -1,5 +1,5 @@
 
-from .models import Product, Profile
+from .models import Product, Profile, Category
 from .cart import Cart
 
 from django.http import HttpResponse
@@ -51,6 +51,27 @@ def cart(request):
 
 def about(request):
     return render(request, 'main/about.html')
+
+def search(request):
+    query = request.GET.get('q', '') 
+    products = []
+    
+    if query:
+        products = Product.objects.filter(
+            Q(name__icontains=query) | 
+            Q(manufacturer__name__icontains=query) | 
+            Q(description__icontains=query),
+            is_available=True
+        )
+        
+    return render(request, 'main/search.html', {'products': products, 'query': query})
+
+def category_details(request, category_slug):
+    category = get_object_or_404(Category, slug=category_slug)
+    
+    products = Product.objects.filter(category=category, is_available=True)
+    
+    return render(request, 'main/category.html', {'category': category, 'products': products})
 
 @login_required
 def profile_view(request):
@@ -127,16 +148,3 @@ def delete_account(request):
     
     return redirect('profile')
 
-def search(request):
-    query = request.GET.get('q', '') 
-    products = []
-    
-    if query:
-        products = Product.objects.filter(
-            Q(name__icontains=query) | 
-            Q(manufacturer__name__icontains=query) | 
-            Q(description__icontains=query),
-            is_available=True
-        )
-        
-    return render(request, 'main/search.html', {'products': products, 'query': query})
