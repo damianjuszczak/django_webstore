@@ -12,9 +12,7 @@ from django.db.models import Q
 
 
 def index(request):
-    products = Product.objects.filter(is_available=True)
-    
-    return render(request, 'main/index.html', {'products': products})
+    return render(request, 'main/index.html')
 
 def contact(request):
     return render(request, "main/contact.html")
