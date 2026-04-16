@@ -14,8 +14,8 @@ env/
 *.sqlite3
 
 # --- Foldery lokalne / Media ---
-/static/
-/media/
+static/
+media/
 
 # --- Systemowe (macOS) ---
 .DS_Store
