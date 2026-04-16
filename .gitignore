@@ -2,6 +2,7 @@
 ## Na podstawie: https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 # --- Sekcja Python & Środowisko ---
+.venv/
 venv/
 ENV/
 env/
