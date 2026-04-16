@@ -10,6 +10,7 @@ urlpatterns = [
     path('contact', views.contact, name="contact"),
     path('search', views.search, name='search'),
 
+    path('categories/<slug:category_slug>/', views.category_details, name='category_details'),
 
     # Account
     path('login', views.login_user, name='login_user'),
