@@ -12,7 +12,9 @@ from django.db.models import Q
 
 
 def index(request):
-    return render(request, 'main/index.html')
+    products = Product.objects.filter(is_available=True)
+    
+    return render(request, 'main/index.html', {'products': products})
 
 def contact(request):
     return render(request, "main/contact.html")
@@ -35,12 +37,19 @@ def cart_decrement(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.decrement(product)
+
+    if str(product_id) not in request.session.get('cart', {}):
+        messages.info(request, f'Produkt "{product.name}" został usunięty z koszyka.')
+
     return redirect('cart')
 
 def cart_remove(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.remove(product)
+
+    messages.info(request, f'Produkt "{product.name}" został usunięty z koszyka.')
+
     return redirect('cart')
 
 def cart(request):
