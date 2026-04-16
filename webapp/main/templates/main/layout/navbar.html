@@ -34,8 +34,8 @@
               <a class="nav-link text-uppercase fw-bold" style="font-size: 1.05rem; letter-spacing: 1px;" href="{{ link.href }}">
                 <i class="fa-solid {{ link.icon }} me-1"></i> {{ link.name }}
                 
-                {% if link.name == 'Cart' and cart|length > 0 %}
-                  <span class="badge bg-danger rounded-pill ms-1">{{ cart|length }}</span>
+                {% if link.name == 'Koszyk' and cart|length > 0 %}
+                  <span class="badge bg-secondary rounded-pill ms-1">{{ cart|length }}</span>
                 {% endif %}
               </a>
             </li>
