@@ -127,7 +127,7 @@ def register(request):
         profile, created = Profile.objects.get_or_create(user=user)
         
         profile.phone = request.POST.get('phone', '')
-        profile.address = request.POST.get('adress', '') 
+        profile.address = request.POST.get('address', '') 
         profile.city = request.POST.get('city', '')
         profile.zip_code = request.POST.get('zip_code', '')
         profile.country = request.POST.get('country', 'Polska')
