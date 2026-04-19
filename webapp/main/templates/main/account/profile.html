@@ -1,34 +1,192 @@
 {% extends 'main/layout/layout.html' %}
-
+{% load static %}
 {% block title %}Strona główna{% endblock %}
 
 {% block content %}
-    <h1>Twoje konto</h1>
-    <hr>
-<div class="profile-card">
-    {% if user.profile.avatar %}
-        <img src="{{ user.profile.avatar.url }}" alt="Avatar" width="150">
-    {% endif %}
-    
-    <p><strong>Użytkownik:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Telefon:</strong> {{ user.profile.phone }}</p>
-    <p><strong>Adres:</strong> {{ user.profile.address }}, {{ user.profile.city }}</p>
-    <p><strong>Kraj:</strong> {{ user.profile.country }}</p>
-    
-    <p><strong>Newsletter:</strong> 
-        {% if user.profile.newsletter %} Tak {% else %} Nie {% endif %}
-    </p>
-</div>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar shadow-sm h-100">
+                <div class="text-center mb-4">
+                    <div class="avatar-placeholder mb-3">
+                        {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" width="75">
+                        {% else %}
+                        <img src="{% static 'main/img/profile_placeholder.png' %}" alt="Profile placeholder" width="75">
+                        {% endif %}
+                    </div>
+                    <h4 class="fw-bold">{{ user.username }}</h4>
+                </div>
 
+                <nav class="nav flex-column p-2">
+                    <button class="btn btn-outline-secondary my-1 w-100 text-start d-flex justify-content-between align-items-center switch-section-js active" data-section="profile-section">
+                        <span>
+                            <i class="fa-solid fa-user me-2"></i> Profil
+                        </span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
 
-<hr>
-<div class="mt-4">
-    <form action="{% url 'delete_account' %}" method="POST" onsubmit="return confirm('Czy na pewno chcesz trwale usunąć swoje konto? Tej operacji nie da się cofnąć.');">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">
-            Usuń moje konto
-        </button>
-    </form>
+                     <button class="btn btn-outline-secondary my-1 w-100 text-start d-flex justify-content-between align-items-center switch-section-js" data-section="order-section">
+                        <span>
+                            <i class="fa-solid fa-user me-2"></i> Zamówienia
+                        </span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                    <hr>
+
+                    <button class="btn btn-outline-secondary w-100 text-start">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i> Wyloguj się
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <div class="col-md-9 content-section" id="profile-section">
+            <div class="profile-card shadow-sm p-4 position-relative">
+
+                <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
+                    <span class="mb-0">Profil</span>
+
+                    <span class="btn btn-outline-secondary d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-pen"></i>
+                    </span>
+                </h3>
+                <p class="text-muted">Informacje o twoim koncie</p>
+                <hr class="mb-4">
+
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Użytkownik</div>
+                    <div class="col-sm-8 fw-semibold">{{ user.username }}</div>
+                </div>
+
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Numer telefonu</div>
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+                        {{ user.profile.phone }}
+                        {% if not user.profile.phone %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                            Niekompletne dane
+                        </span>
+
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Email</div>
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+                        {{ user.email }}
+                        {% if not user.email %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                            Niekompletne dane
+                        </span>
+
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row data-row align-items-center"><br></div>
+
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Adres</div>
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+                        {{ user.profile.address }}
+                        {% if not user.profile.address or not user.profile.city%}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                            Niekompletne dane
+                        </span>
+
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Miasto</div>
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+                        {{ user.profile.zip_code }} {{ user.profile.city }}
+                        {% if not user.profile.zip_code or not user.profile.city%}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                            Niekompletne dane
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Kraj</div>
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+                        {{ user.profile.country }}
+                        {% if not user.profile.country %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                            Niekompletne dane
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Newsletter</div>
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+                        {% if user.profile.newsletter %}
+                        <span class="badge bg-success">Aktywny</span>
+                        {% else %}
+                        <span class="badge bg-danger">Nieaktywny</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row data-row align-items-center">
+                    <div class="col-sm-4 text-muted">Usuwanie konta</div>
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+                        <form action="{% url 'delete_account' %}" method="POST">
+                            {% csrf_token %}
+                            <span type="submit" class="delete-account-js badge bg-warning text-dark">
+                                <i class="fa-solid fa-x me-1"></i>
+                                Usuń moje konto
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9 content-section" id="order-section" style="display: none;">
+            <div class="profile-card shadow-sm p-4 position-relative">
+
+                <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
+                    <span class="mb-0">Zamówienia</span>
+                </h3>
+                <p class="text-muted">Wszytskie twoje zamoówienia w jednym miejscu</p>
+                <hr class="mb-4">
+
+                {% for order in orders %}
+                    <div style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px;">
+                        Zamówienie - {{ order.created_at|date:"d.m.Y H:i" }}
+                        <p>Status: {{ order.get_status_display }}</p>
+                        
+                        <ul>
+                        {% for item in order.items.all %}
+                            <li>
+                                {{ item.product.name }} — {{ item.quantity }} szt. x {{ item.price }} zł 
+                                (Suma: {{ item.get_total_price }} zł)
+                            </li>
+                        {% endfor %}
+                        </ul>
+                        
+                        <p><strong>Łącznie do zapłaty: {{ order.get_total_price }} zł</strong></p>
+                    </div>
+                {% empty %}
+                    <p>Nie masz jeszcze żadnych zamówień.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
+<script src="{% static 'main/js/profile.js' %}"></script>
 {% endblock %}
