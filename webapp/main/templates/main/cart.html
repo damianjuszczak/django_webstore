@@ -39,7 +39,7 @@
         <div class="text-end mt-4">
             <h3>Suma całkowita: {{ cart.get_total_price }} PLN</h3>
             <a href="{% url 'home' %}" class="btn btn-outline-secondary">Kontynuuj zakupy</a>
-            <a href="#" class="btn btn-success">Przejdź do kasy</a>
+            <a href="{% url 'checkout' %}" class="btn btn-success">Zamawiam i płacę</a>
         </div>
 
     {% else %}
