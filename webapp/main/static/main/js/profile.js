@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+
+    // delete account button (acceptation)
     const deleteAccountBtn = document.querySelector('span.delete-account-js');
     console.log(deleteAccountBtn);
     if (deleteAccountBtn) {
@@ -28,19 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    const warnings = document.querySelectorAll('.expandable-warning');
-    warnings.forEach(warning => {
-        warning.addEventListener('click', function() {
-            this.classList.toggle('expanded');
-            if (this.classList.contains('expanded')) {
-                setTimeout(() => {
-                    this.classList.remove('expanded');
-                }, 3000);
-            }
-        });
-    });
     
+    // change section buttons
     document.querySelectorAll(".switch-section-js").forEach(button => {
         button.addEventListener("click", function(e) {
             const sectionId = this.getAttribute('data-section');
@@ -62,4 +53,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-});
+    function switchButtons(oldButton, newButton) {
+        oldButton.classList.add("d-none");
+        newButton.classList.remove("d-none");
+    }
+
+    // trigger edit profile
+    document.querySelector(".edit-profile-data-js").addEventListener("click", function(e) {
+
+        // hide edit button -> show accept button
+        const newButton = document.querySelector(".confirm-profile-data-js");
+        switchButtons(this, newButton)
+
+        const fieldsData = {};
+        
+        // change fields to inputs
+        document.querySelectorAll(".edit-field-js").forEach(field => {
+            const fieldName = field.getAttribute('data-field');
+            const valueSpan = field.querySelector(".field-value-js");
+
+            const currentValue = valueSpan.innerText.trim();
+            fieldsData[fieldName] = currentValue;
+
+            valueSpan.innerHTML = `
+                <input 
+                    type="phone" 
+                    placeholder="${currentValue}"
+                >
+            `;
+        });
+
+    });
+
+    // accept new fields
+    document.querySelector(".confirm-profile-data-js").addEventListener("click", function(e) {
+
+        // hide correct button -> show edit button
+        const newButton = document.querySelector(".edit-profile-data-js");
+        switchButtons(this, newButton)
+        
+        // updatez
+    });
+}); 

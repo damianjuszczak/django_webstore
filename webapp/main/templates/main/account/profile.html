@@ -48,8 +48,11 @@
                 <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
                     <span class="mb-0">Profil</span>
 
-                    <span class="btn btn-outline-secondary d-flex align-items-center justify-content-center">
+                    <span class="btn btn-outline-secondary d-flex align-items-center justify-content-center edit-profile-data-js">
                         <i class="fa-solid fa-pen"></i>
+                    </span>
+                    <span class="btn btn-success d-flex align-items-center justify-content-center confirm-profile-data-js d-none">
+                        <i class="fa-solid fa-check"></i>
                     </span>
                 </h3>
                 <p class="text-muted">Informacje o twoim koncie</p>
@@ -57,19 +60,20 @@
 
                 <div class="row data-row align-items-center">
                     <div class="col-sm-4 text-muted">Użytkownik</div>
-                    <div class="col-sm-8 fw-semibold">{{ user.username }}</div>
+                    <div class="col-sm-8 fw-semibold"><span>{{ user.username }}</span></div>
                 </div>
 
                 <div class="row data-row align-items-center">
                     <div class="col-sm-4 text-muted">Numer telefonu</div>
-                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
-                        {{ user.profile.phone }}
+                    <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="field-phone">
+                        <span class="field-value-js">
+                            {{ user.profile.phone|default:"" }}
+                        </span>
                         {% if not user.profile.phone %}
                         <span class="badge bg-warning text-dark">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
                             Niekompletne dane
                         </span>
-
                         {% endif %}
                     </div>
                 </div>
@@ -77,7 +81,9 @@
                 <div class="row data-row align-items-center">
                     <div class="col-sm-4 text-muted">Email</div>
                     <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
-                        {{ user.email }}
+                        <span class="field-value-js">
+                            {{ user.email }}
+                        </span>
                         {% if not user.email %}
                         <span class="badge bg-warning text-dark">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
@@ -93,7 +99,9 @@
                 <div class="row data-row align-items-center">
                     <div class="col-sm-4 text-muted">Adres</div>
                     <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
-                        {{ user.profile.address }}
+                        <span class="field-value-js">
+                            {{ user.profile.address }}
+                        </span>
                         {% if not user.profile.address or not user.profile.city%}
                         <span class="badge bg-warning text-dark">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
@@ -107,7 +115,9 @@
                 <div class="row data-row align-items-center">
                     <div class="col-sm-4 text-muted">Miasto</div>
                     <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
-                        {{ user.profile.zip_code }} {{ user.profile.city }}
+                        <span class="field-value-js">
+                            {{ user.profile.zip_code }} {{ user.profile.city }}
+                        </span>
                         {% if not user.profile.zip_code or not user.profile.city%}
                         <span class="badge bg-warning text-dark">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
@@ -120,7 +130,9 @@
                 <div class="row data-row align-items-center">
                     <div class="col-sm-4 text-muted">Kraj</div>
                     <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
-                        {{ user.profile.country }}
+                        <span class="field-value-js">
+                            {{ user.profile.country }}
+                        </span>
                         {% if not user.profile.country %}
                         <span class="badge bg-warning text-dark">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
