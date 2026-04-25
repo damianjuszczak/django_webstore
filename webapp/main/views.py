@@ -12,8 +12,9 @@ from django.db.models import Q
 
 
 def index(request):
-    products = Product.objects.filter(is_available=True)
-    return render(request, "main/index.html", {"products": products})
+    products = Product.objects.filter(is_available=True).order_by('?')[:4]
+    
+    return render(request, 'main/index.html', {'products': products})
 
 
 def contact(request):
