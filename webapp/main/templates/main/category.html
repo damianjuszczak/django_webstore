@@ -12,7 +12,19 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Kategoria: {{ category.name }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="m-0">Kategoria: {{ category.name }}</h1>
+        
+        <button class="btn btn-dark rounded-pill px-3 position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-controls="filterOffcanvas">
+            Filtry <i class="bi bi-funnel ms-1"></i>
+            
+            {% if min_price or max_price %}
+                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                    <span class="visually-hidden">Aktywne filtry</span>
+                </span>
+            {% endif %}
+        </button>
+    </div>
     <hr>
 
     {% if products %}
@@ -60,4 +72,32 @@
         </div>
     {% endif %}
     
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="filterOffcanvas" aria-labelledby="filterOffcanvasLabel">
+        
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="filterOffcanvasLabel">Filtruj produkty</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Zamknij"></button>
+        </div>
+        
+        <div class="offcanvas-body">
+            <form method="GET" class="d-flex flex-column gap-3">
+                
+                <div>
+                    <label class="form-label text-muted small fw-bold mb-1">Cena (PLN)</label>
+                    <div class="d-flex gap-2">
+                        <input type="number" name="min_price" class="form-control rounded-3" placeholder="Od" value="{{ min_price|default:'' }}">
+                        <input type="number" name="max_price" class="form-control rounded-3" placeholder="Do" value="{{ max_price|default:'' }}">
+                    </div>
+                </div>
+                <div class="mt-4 d-flex flex-column gap-2">
+                    <button type="submit" class="btn btn-dark w-100 rounded-pill">Pokaż wyniki</button>
+                    <a href="{{ category.get_absolute_url }}" class="btn btn-outline-secondary w-100 rounded-pill">
+                        Wyczyść filtry
+                    </a>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
 {% endblock %}
