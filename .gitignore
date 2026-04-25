@@ -2,6 +2,7 @@
 ## Na podstawie: https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 # --- Sekcja Python & Środowisko ---
+.venv/
 venv/
 ENV/
 env/
@@ -13,8 +14,8 @@ env/
 *.sqlite3
 
 # --- Foldery lokalne / Media ---
-/static/
-/media/
+static/
+media/
 
 # --- Systemowe (macOS) ---
 .DS_Store

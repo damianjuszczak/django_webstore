@@ -1,35 +1,67 @@
-{% extends 'main/layout/layout.html' %} {% block title%}Kontakt{% endblock %}
-{%block content%}
+{% extends 'main/layout/layout.html' %} {% block title %}Kontakt{% endblock %}
+{% block content %}
 <section style="width: 100%">
-	<h1>Skontaktuj się z nami</h1>
-	<form class="row">
+	<h1 style="text-align: center">Skontaktuj się z nami</h1>
+	<form class="row" method="POST" novalidate>
+		{% csrf_token %}
+
 		<div class="col-12 col-md-6 mb-3">
-			<label for="exampleInputEmail1" class="form-label">Email</label>
-			<input
-				type="email"
-				class="form-control"
-				id="exampleInputEmail1"
-				aria-describedby="emailHelp"
-			/>
-			<div id="emailHelp" class="form-text">
+			<label for="{{ form.email.id_for_label }}" class="form-label"
+				>Email</label
+			>
+			{{ form.email }} {% if form.email.errors %}
+			<div class="text-danger mt-1">
+				{% for error in form.email.errors %}
+				<small>{{ error }}</small><br />
+				{% endfor %}
+			</div>
+			{% endif %}
+
+			<div
+				id="emailHelp"
+				class="form-text"
+				style="font-size: clamp(0.875em, 3vw, 1rem)"
+			>
 				Nigdy nie udostępnimy Twojego adresu e-mail nikomu innemu.
 			</div>
 		</div>
+
 		<div class="col-12 col-md-6 mb-3">
-			<label for="exampleInputPassword1" class="form-label">Tytuł</label>
-			<input type="password" class="form-control" id="exampleInputPassword1" />
+			<label for="{{ form.title.id_for_label }}" class="form-label"
+				>Tytuł</label
+			>
+			{{ form.title }} {% if form.title.errors %}
+			<div class="text-danger mt-1">
+				{% for error in form.title.errors %}
+				<small>{{ error }}</small><br />
+				{% endfor %}
+			</div>
+			{% endif %}
 		</div>
+
 		<div class="col-12 mb-3 form-floating">
-			<textarea
-				class="form-control"
-				id="floatingTextarea2"
-				style="height: 100px"
-			></textarea>
-			<label for="floatingTextarea2">Wiadomość</label>
+			{{ form.message }}
+			<label
+				class="message-placeholder"
+				for="{{ form.message.id_for_label }}"
+				style="margin-left: 5px"
+			>
+				Wiadomość
+			</label>
+
+			{% if form.message.errors %}
+			<div class="text-danger mt-1">
+				{% for error in form.message.errors %}
+				<small>{{ error }}</small><br />
+				{% endfor %}
+			</div>
+			{% endif %}
 		</div>
+
 		<div class="col-12">
 			<button type="submit" class="btn btn-primary">Wyślij</button>
 		</div>
 	</form>
 </section>
+
 {% include 'main/test.html' %} {% endblock %}
