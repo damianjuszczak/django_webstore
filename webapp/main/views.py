@@ -102,6 +102,11 @@ def category_details(request, category_slug):
     )
 
 
+def product_details(request, slug):
+    product = get_object_or_404(Product, slug=slug, is_available=True)
+    
+    return render(request, 'main/product_details.html', {'product': product})
+
 @login_required
 def profile_view(request):
     return render(request, "main/account/profile.html", {"user": request.user})

@@ -2,31 +2,62 @@
 
 {% block title %}{{ category.name }}{% endblock %}
 
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none">Strona główna</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
     <h1>Kategoria: {{ category.name }}</h1>
     <hr>
 
     {% if products %}
-        <ul>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            
             {% for product in products %}
-                <li style="margin-bottom: 30px;">
-                    <h3>{{ product.name }}</h3>
-                    <p><strong>Producent:</strong> {{ product.manufacturer.name }}</p>
-                    <p><strong>Cena:</strong> {{ product.price }} PLN</p>
-                    <p>{{ product.description }}</p>
+                <div class="col">
+                    <div class="card h-100">
+                        
+                        <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                            {% if product.images.first %}
+                                <img src="{{ product.images.first.image.url }}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                    <span class="text-muted">Brak zdjęcia</span>
+                                </div>
+                            {% endif %}
+                        </a>
 
-                    <form action="{% url 'cart_add' product.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success">Dodaj do koszyka</button>
-                    </form>
-                </li>
+                        <div class="card-body">
+                            <p class="text-muted mb-1">{{ product.manufacturer.name }}</p>
+                            
+                            <h5>
+                                <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                            </h5>
+                            
+                            <h4>{{ product.price }} PLN</h4>
+                            
+                            <form action="{% url 'cart_add' product.id %}" method="post" class="mt-3">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">
+                                <i class="bi bi-plus"></i> Dodaj do koszyka
+                            </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+
+        </div>
     {% else %}
         <div class="alert alert-info">
             Brak produktów w tej kategorii.
         </div>
     {% endif %}
     
-    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-3">Wróć do strony głównej</a>
 {% endblock %}
