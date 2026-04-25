@@ -77,8 +77,25 @@ def category_details(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
     
     products = Product.objects.filter(category=category, is_available=True)
+
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    if min_price:
+        products = products.filter(price__gte=min_price)
+
+    if max_price:
+        products = products.filter(price__lte=max_price)
+
+    context = {
+        'category': category,
+        'products': products,
+        'min_price': min_price,
+        'max_price': max_price,
+
+    }    
     
-    return render(request, 'main/category.html', {'category': category, 'products': products})
+    return render(request, 'main/category.html', context)
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
