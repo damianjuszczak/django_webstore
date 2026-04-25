@@ -6,7 +6,7 @@ register = template.Library()
 def get_links():
     return [
         {
-            'name': 'Categories',
+            'name': 'Kategorie',
             'icon': 'fa-layer-group',
             'children': [
                 {'name': 'Laptopy i komputery', 'href': '/categories/laptops-computers'},
@@ -17,17 +17,17 @@ def get_links():
             ]
         },
         {
-            'name': 'Sale',
-            'href': '/sale',
-            'icon': 'fa-percent',
+            'name': 'Szukaj',
+            'href': '/search',
+            'icon': 'fa-search',
         },
         {
-            'name': 'Contact',
+            'name': 'Kontakt',
             'href': '/contact',
             'icon': 'fa-envelope',
         },
         {
-            'name': 'Cart',
+            'name': 'Koszyk',
             'href': '/cart',
             'icon': 'fas fa-shopping-basket',
         }

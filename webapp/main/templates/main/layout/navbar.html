@@ -1,78 +1,128 @@
 {% load static %}
-{% load sidebar_links %}
-
+{% load navbar_links %}
 {% get_links as links %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-  <div class="container-sm" style="min-width: 997px">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-      <img src="{% static 'main/img/django_logo.svg' %}" alt="Logo" width="30">
-      <span>Django Store</span>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 sticky-top py-3">
+  <div class="container-sm">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+        <img src="{% static 'main/img/os_logo1.png' %}" style="height: 65px; width: auto;" class="logo-hover">
     </a>
     
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
-      <span class="navbar-toggler-icon"></span>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
+        <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="topNavbar">
-      <ul class="navbar-nav mx-auto gap-4 mb-2 mb-lg-0">
-
+      
+      <ul class="navbar-nav flex-grow-1 justify-content-evenly px-lg-5 mb-2 mb-lg-0 custom-nav">
         {% for link in links %}
-        <li class="nav-item {% if link.children %}dropdown{% endif %}">
-
+          
           {% if link.children %}
-
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-              <i class="fa-solid {{ link.icon }}"></i> {{ link.name }}
-            </a>
-
-          <ul class="dropdown-menu">
-            {% for child in link.children %}
-              <li>
-                <a class="dropdown-item" href="{{ child.href }}">
-                  {{ child.name }}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle text-uppercase fw-bold" href="#" id="catDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.05rem; letter-spacing: 1px;">
+                <i class="fa-solid {{ link.icon }} me-1"></i> {{ link.name }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark shadow border-0 mt-2" aria-labelledby="catDropdown">
+                {% for child in link.children %}
+                  <li><a class="dropdown-item py-2 fw-semibold" href="{{ child.href }}">{{ child.name }}</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+          
           {% else %}
-          <a class="nav-link {% if request.path == link.href %}active{% endif %}" href="{{ link.href }}">
-            <i class="fa-solid {{ link.icon }}"></i> {{ link.name }}
-          </a>
+            <li class="nav-item">
+              <a class="nav-link text-uppercase fw-bold" style="font-size: 1.05rem; letter-spacing: 1px;" href="{{ link.href }}">
+                <i class="fa-solid {{ link.icon }} me-1"></i> {{ link.name }}
+                
+                {% if link.name == 'Koszyk' and cart|length > 0 %}
+                  <span class="badge bg-secondary rounded-pill ms-1">{{ cart|length }}</span>
+                {% endif %}
+              </a>
+            </li>
           {% endif %}
 
-        </li>
         {% endfor %}
-
       </ul>
       
       <div class="d-flex align-items-center gap-3">
         {% if request.user.is_authenticated %}
-        <div class="dropdown">
-          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-            <img src="https://github.com/mdo.png" width="32" height="32" class="rounded-circle me-2">
-            <strong>{{ request.user.username }}</strong>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow mt-2">
-            <li><a class="dropdown-item" href="#">New project...</a></li>
-            <li><a class="dropdown-item" href="#">Settings</a></li>
-            <li><a class="dropdown-item" href="profile">Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <form method="POST" action="logout/" class="m-0 p-0">
-                {% csrf_token %}
-                <button class="dropdown-item text-danger" type="submit">Logout</button>
-              </form>
-            </li>
-          </ul>
-        </div>
+            <div class="dropdown">
+                <a href="#" class="btn btn-outline-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-user me-2"></i>{{ request.user.username }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow dropdown-menu-dark mt-2 border-0">
+                    <li><a class="dropdown-item py-2" href="{% url 'profile_view' %}">Profil użytkownika</a></li>
+                    <li><hr class="dropdown-divider border-secondary"></li>
+                    <li>
+                        <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
+                            {% csrf_token %}
+                            <button class="dropdown-item text-danger fw-bold" type="submit">Wyloguj się</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         {% else %}
-          <a class="btn btn-primary btn-sm px-3" href="/login">Login</a>
-          <a class="btn btn-outline-light btn-sm px-3" href="/register">Register</a>
+            <a class="btn btn-link text-white text-decoration-none fw-bold" href="/login">LOGOWANIE</a>
+            <a class="btn btn-outline-light px-4 rounded-pill fw-bold" href="/register">DOŁĄCZ</a>
         {% endif %}
       </div>
 
     </div>
   </div>
 </nav>
+
+ <style>
+    /* Podstawa linków */
+    .custom-nav .nav-link { 
+        position: relative; 
+        padding-bottom: 8px; 
+        transition: 0.3s; 
+    }
+
+    /* Linia - używamy !important, żeby strzałka bootstrapa nie psułą */
+    .custom-nav .nav-link::after {
+        content: '' !important; /* Zamiast strzalki pusta treść */
+        position: absolute; 
+        width: 0; 
+        height: 3px; 
+        bottom: 0; 
+        left: 0;
+        background-color: #0dcaf0; 
+        transition: width 0.3s ease;
+        border-radius: 2px;
+        display: block !important; /* Upewniamy się, że element istnieje */
+        border: none !important; /* Usuwamy obramowanie, które tworzyło strzałkę */
+    }
+
+    /* Animacja linii po najechaniu */
+    .custom-nav .nav-link:hover::after { 
+        width: 100%; 
+    }
+
+    .custom-nav .nav-link:hover { 
+        color: #fff !important; 
+        transform: translateY(-2px); 
+    }
+
+    /* Styl rozwijanego menu (Dropdown) */
+    .dropdown-menu-dark { 
+        background-color: #212529; 
+        border-radius: 10px; 
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .dropdown-item:hover { 
+        background-color: #343a40; 
+        color: #0dcaf0 !important; 
+        padding-left: 25px; 
+    }
+
+    /* Logo i Przyciski */
+    .logo-hover { transition: 0.3s; }
+    .logo-hover:hover { transform: scale(1.03); }
+
+    .btn-outline-light:hover { 
+        background: #fff; 
+        color: #212529 !important; 
+    }
+</style>

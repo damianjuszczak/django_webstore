@@ -1,0 +1,32 @@
+{% extends 'main/layout/layout.html' %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+    <h1>Kategoria: {{ category.name }}</h1>
+    <hr>
+
+    {% if products %}
+        <ul>
+            {% for product in products %}
+                <li style="margin-bottom: 30px;">
+                    <h3>{{ product.name }}</h3>
+                    <p><strong>Producent:</strong> {{ product.manufacturer.name }}</p>
+                    <p><strong>Cena:</strong> {{ product.price }} PLN</p>
+                    <p>{{ product.description }}</p>
+
+                    <form action="{% url 'cart_add' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Dodaj do koszyka</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">
+            Brak produktów w tej kategorii.
+        </div>
+    {% endif %}
+    
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-3">Wróć do strony głównej</a>
+{% endblock %}

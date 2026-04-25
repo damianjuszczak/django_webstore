@@ -1,0 +1,35 @@
+{% extends 'main/layout/layout.html' %}
+
+{% block title %}Wyszukiwarka{% endblock %}
+
+{% block content %}
+    <h1>Wyszukaj produkty</h1>
+    <hr>
+
+    <form method="GET" action="{% url 'search' %}" class="mb-4 d-flex">
+        <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Wpisz nazwę produktu..." required>
+        <button type="submit" class="btn btn-primary">Szukaj</button>
+    </form>
+
+    {% if query %}
+        <h3>Wyniki wyszukiwania dla: "{{ query }}"</h3>
+        <ul>
+            {% for product in products %}
+                <li style="margin-bottom: 30px;">
+                    <h3>{{ product.name }}</h3>
+                    <p><strong>Producent:</strong> {{ product.manufacturer.name }}</p>
+                    <p><strong>Cena:</strong> {{ product.price }} PLN</p>
+                    <p>{{ product.description }}</p>
+
+                    <form action="{% url 'cart_add' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Dodaj do koszyka</button>
+                    </form>
+                </li>
+            {% empty %}
+                <p>Niestety, nie znaleziono produktów spełniających Twoje kryteria.</p>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock %}
