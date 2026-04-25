@@ -15,6 +15,7 @@ def index(request):
     products = Product.objects.filter(is_available=True)
     return render(request, "main/index.html", {"products": products})
 
+
 def contact(request):
     # Jeśli formularz został wysłany
     if request.method == "POST":
@@ -100,6 +101,12 @@ def category_details(request, category_slug):
     return render(
         request, "main/category.html", {"category": category, "products": products}
     )
+
+
+def product_details(request, slug):
+    product = get_object_or_404(Product, slug=slug, is_available=True)
+
+    return render(request, "main/product_details.html", {"product": product})
 
 
 @login_required
