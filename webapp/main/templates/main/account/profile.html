@@ -26,18 +26,27 @@
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
 
-                     <button class="btn btn-outline-secondary my-1 w-100 text-start d-flex justify-content-between align-items-center switch-section-js" data-section="order-section">
+                    <button class="btn btn-outline-secondary my-1 w-100 text-start d-flex justify-content-between align-items-center switch-section-js" data-section="order-section">
                         <span>
-                            <i class="fa-solid fa-user me-2"></i> Zamówienia
+                            <i class="fa-solid fa-bag-shopping me-2"></i> Zamówienia
+                        </span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                    <button class="btn btn-outline-secondary my-1 w-100 text-start d-flex justify-content-between align-items-center switch-section-js" data-section="messages-section">
+                        <span>
+                            <i class="fa-solid fa-message me-2"></i> Wysłane zgłoszenia
                         </span>
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
 
                     <hr>
-
-                    <button class="btn btn-outline-secondary w-100 text-start">
-                        <i class="fa-solid fa-right-from-bracket me-2"></i> Wyloguj się
-                    </button>
+                    <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-secondary w-100 text-start" type="submit">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> Wyloguj się
+                        </button>
+                    </form>
                 </nav>
             </div>
         </div>
@@ -195,6 +204,37 @@
                     </div>
                 {% empty %}
                     <p>Nie masz jeszcze żadnych zamówień.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-9 content-section" id="messages-section" style="display: none;">
+            <div class="profile-card shadow-sm p-4 position-relative">
+
+                <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
+                    <span class="mb-0">Twoje zgłoszenia</span>
+                </h3>
+                <p class="text-muted">Wszytskie twoje zgłoszenia w jednym miejscu</p>
+                <hr class="mb-4">
+                <p>Funckjonalność w trakcie realizacji...</p>
+                <!-- {% for message in messages %}
+                    <div style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px;">
+                        Zamówienie - {{ order.created_at|date:"d.m.Y H:i" }}
+                        <p>Status: {{ order.get_status_display }}</p>
+                        
+                        <ul>
+                        {% for item in order.items.all %}
+                            <li>
+                                {{ item.product.name }} — {{ item.quantity }} szt. x {{ item.price }} zł 
+                                (Suma: {{ item.get_total_price }} zł)
+                            </li>
+                        {% endfor %}
+                        </ul>
+                        
+                        <p><strong>Łącznie do zapłaty: {{ order.get_total_price }} zł</strong></p>
+                    </div>
+                {% empty %} -->
+                    
                 {% endfor %}
             </div>
         </div>
