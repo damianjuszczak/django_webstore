@@ -46,6 +46,12 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    ram = models.CharField(max_length=100, null=True, blank=True)
+    cpu = models.CharField(max_length=100, null=True, blank=True)
+    gpu = models.CharField(max_length=100, null=True, blank=True)
+    screen = models.CharField(max_length=100, null=True, blank=True)
+    battery = models.CharField(max_length=100, null=True, blank=True)
+
     class Meta:
         ordering = ['-created_at']
 

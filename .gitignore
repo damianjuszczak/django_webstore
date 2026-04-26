@@ -17,6 +17,9 @@ env/
 static/
 media/
 
+# --- CSV file
+products.csv
+
 # --- Systemowe (macOS) ---
 .DS_Store
 .AppleDouble
