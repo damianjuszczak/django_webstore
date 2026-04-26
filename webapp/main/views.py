@@ -1,4 +1,4 @@
-from .models import Product, Profile, Category
+from .models import Product, Profile, Category, Order, OrderItem
 from .cart import Cart
 from .contact import ContactForm
 
@@ -8,7 +8,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, F
+from django.db import transaction
 
 
 def index(request):
@@ -112,11 +113,9 @@ def product_details(request, slug):
 
 @login_required
 def profile_view(request):
-    return render(request, "main/account/profile.html", {"user": request.user})
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__product')
+    return render(request, 'main/account/profile.html', {'user': request.user, 'orders': orders})
 
-
-# Using the Django authentication system (Django Documentation)
-# https://docs.djangoproject.com/en/5.1/topics/auth/default/
 def login_user(request):
     if request.user.is_authenticated:
         return redirect("home")
@@ -161,13 +160,13 @@ def register(request):
         )
 
         profile, created = Profile.objects.get_or_create(user=user)
-
-        profile.phone = request.POST.get("phone", "")
-        profile.address = request.POST.get("adress", "")
-        profile.city = request.POST.get("city", "")
-        profile.zip_code = request.POST.get("zip_code", "")
-        profile.country = request.POST.get("country", "Polska")
-
+        
+        profile.phone = request.POST.get('phone', '')
+        profile.address = request.POST.get('address', '') 
+        profile.city = request.POST.get('city', '')
+        profile.zip_code = request.POST.get('zip_code', '')
+        profile.country = request.POST.get('country', 'Polska')
+        
         profile.save()
 
         messages.success(request, "Twoje konto zostało pomyślnie utworzone.")
@@ -191,4 +190,54 @@ def delete_account(request):
         messages.success(request, "Twoje konto zostało pomyślnie usunięte.")
         return redirect("home")
 
-    return redirect("profile")
+@transaction.atomic
+def checkout(request):
+    cart = Cart(request)
+
+    if len(cart) == 0:
+        messages.error(request, "Twój koszyk jest pusty.")
+        return redirect('cart_view')
+
+    order = Order.objects.create(
+        user=request.user,
+        first_name=request.user.first_name,
+        last_name=request.user.last_name,
+        email=request.user.email,
+        phone="user.profile.phone",
+        address="user.profile.address",
+        city="user.profile.city",
+        zip_code="user.profile.zip_code",
+        country="user.profile.country",
+    )
+
+    items_added = 0
+
+    for item in cart:
+        product = item['product']
+        quantity = item['quantity']
+        price = product.price
+
+        updated = Product.objects.filter(
+            id=product.id, 
+            stock__gte=quantity
+        ).update(stock=F('stock') - quantity)
+
+        if updated:
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                price=price,
+                quantity=quantity
+            )
+            items_added += 1
+        else:
+            messages.warning(request, f"Produkt {product.name} jest niedostępny w wybranej ilości.")
+
+    if items_added > 0:
+        request.session['cart'] = {}
+        request.session.modified = True
+        messages.success(request, "Zamówienie zostało złożone pomyślnie!")
+    else:
+        transaction.set_rollback(True)
+
+    return redirect('cart')
