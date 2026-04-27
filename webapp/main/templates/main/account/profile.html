@@ -178,7 +178,7 @@
         </div>
 
         <div class="col-md-9 content-section" id="order-section" style="display: none;">
-            <div class="profile-card shadow-sm p-4 position-relative">
+            <div class="order-card shadow-sm p-4 position-relative">
 
                 <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
                     <span class="mb-0">Zamówienia</span>
@@ -188,26 +188,36 @@
 
                 {% for order in orders %}
                     <div class="border rounded p-4">
-                        <p class="d-flex justify-content-between align-items-center">
-                            Zamówienie - {{ order.created_at|date:"d.m.Y H:i" }} 
-                            <span class="badge px-3 py-2
-                                {% if order.status == 'new' %}
-                                    bg-warning text-dark
-                                {% elif order.status == 'processing' %}
-                                    bg-primary
-                                {% elif order.status == 'shipped' %}
-                                    bg-info text-dark
-                                {% elif order.status == 'completed' %}
-                                    bg-success
-                                {% elif order.status == 'canceled' %}
-                                    bg-danger
-                                {% else %}
-                                    bg-secondary
+                        <div class="d-flex justify-content-between align-items-center m-2">
+                            <span>Zamówienie - {{ order.created_at|date:"d.m.Y H:i" }}</span>
+                            
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge px-3 py-2
+                                    {% if order.status == 'new' %}
+                                        bg-warning text-dark
+                                    {% elif order.status == 'processing' %}
+                                        bg-primary
+                                    {% elif order.status == 'shipped' %}
+                                        bg-info text-dark
+                                    {% elif order.status == 'completed' %}
+                                        bg-success
+                                    {% elif order.status == 'canceled' %}
+                                        bg-danger
+                                    {% else %}
+                                        bg-secondary
+                                    {% endif %}
+                                ">
+                                    {{ order.get_status_display }}
+                                </span>
+
+                                {% if order.status == 'new' or order.status == 'canceled' %}
+                                <form action="#" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="badge bg-danger border-0 px-3 py-2 text-white shadow-sm">Anuluj</button>
+                                </form>
                                 {% endif %}
-                            ">
-                                {{ order.get_status_display }}
-                            </span>
-                        </p>
+                            </div>
+                        </div>
                         
                         <div class="accordion" id="orderAccordion{{ order.id }}">
                             <div class="accordion-item border rounded-3">
@@ -224,32 +234,47 @@
                                     class="accordion-collapse collapse"
                                     data-bs-parent="#orderAccordion{{ order.id }}">
                                     <div class="accordion-body">
-
-                                        <ul class="list-group list-group-flush">
+                                        <ul class="list-group list-group-flush border-top border-bottom">
                                             {% for item in order.items.all %}
-                                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
-                                                <div>
-                                                    <h6 class="mb-1">
-                                                        {{ item.product.name }}
-                                                    </h6>
-                                                    <small class="text-muted">
-                                                        {{ item.quantity }} szt × {{ item.price }} zł
-                                                    </small>
-                                                </div>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-0 bg-transparent">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            {% with main_image=item.product.images.all|first %}
+                                                                {% if main_image %}
+                                                                    <img src="{{ main_image.image.url }}" 
+                                                                        alt="{{ item.product.name }}" 
+                                                                        class="img-fluid rounded-3 border" 
+                                                                        style="width: 60px; height: 60px; object-fit: cover;">
+                                                                {% else %}
+                                                                    <div class="bg-light rounded-3 border d-flex align-items-center justify-content-center" 
+                                                                        style="width: 60px; height: 60px;">
+                                                                        <i class="bi bi-image text-muted"></i>
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endwith %}
+                                                        </div>
 
-                                                <span class="fw-bold">
-                                                    {{ item.get_total_price }} zł
-                                                </span>
-                                            </li>
+                                                        <div class="ms-3">
+                                                            <h6 class="mb-0 fw-semibold">{{ item.product.name }}</h6>
+                                                            <small class="text-muted">{{ item.quantity }} szt. × {{ item.price }} zł</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <span class="fw-bold text-dark text-nowrap ms-2">
+                                                        {{ item.get_total_price }} zł
+                                                    </span>
+                                                </li>
                                             {% endfor %}
                                         </ul>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <p><strong>Łącznie do zapłaty: {{ order.get_total_price }} zł</strong></p>
+                        <div class="card-footer py-3 m-2 border-top-0 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Wartość całkowita:</span>
+                            <h4 class="badge bg-secondary mb-0 fw-bold fs-6">{{ order.get_total_price }} zł</h4>
+                        </div>
                     </div>
                 {% empty %}
                     <p>Nie masz jeszcze żadnych zamówień.</p>
