@@ -89,7 +89,7 @@ class Profile(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('new', 'Nowe'),
+        ('new', 'Złożone'),
         ('processing', 'W trakcie realizacji'),
         ('shipped', 'Wysłane'),
         ('completed', 'Zrealizowane'),
