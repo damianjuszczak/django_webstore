@@ -8,14 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => notification.remove(), 500);
         };
 
-        const autoHideTimeout = setTimeout(removeNotification, 5000);
-
-        const closeBtn = notification.querySelector('.notofication-close-js');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                clearTimeout(autoHideTimeout);
-                removeNotification();
-            });
-        }
+        const autoHideTimeout = setTimeout(removeNotification, 1750);
     });
 });
