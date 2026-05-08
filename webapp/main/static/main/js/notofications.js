@@ -1,5 +1,5 @@
-function setupNotifications(container) {
-    const notifications = container.querySelectorAll('.notification-item');
+document.addEventListener('DOMContentLoaded', function() {
+    const notifications = document.querySelectorAll('.notification-item');
 
     notifications.forEach(notification => {
         const removeNotification = () => {
@@ -10,12 +10,4 @@ function setupNotifications(container) {
 
         const autoHideTimeout = setTimeout(removeNotification, 1750);
     });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    setupNotifications(document);
-});
-
-document.body.addEventListener('htmx:afterSwap', function(event) {
-    setupNotifications(event.detail.target);
 });

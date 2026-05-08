@@ -41,7 +41,7 @@
                     </button>
 
                     <hr>
-                    <form hx-post="{% url 'logout_user' %}" hx-target="body" class="m-0 p-0">
+                    <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
                         {% csrf_token %}
                         <button class="btn btn-outline-secondary w-100 text-start" type="submit">
                             <i class="fa-solid fa-right-from-bracket me-2"></i> Wyloguj się
