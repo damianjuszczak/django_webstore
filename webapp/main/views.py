@@ -3,19 +3,19 @@ from .models import Product, Profile, Category, Order, OrderItem
 from .cart import Cart
 from .contact import ContactForm
 
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, F
-from django.db import transaction
+from django.db import transaction, IntegrityError
+from django.views.decorators.http import require_POST
 
 
 def index(request):
     products = Product.objects.filter(is_available=True).order_by('?')[:4]
-    
     return render(request, 'main/index.html', {'products': products})
 
 
@@ -111,47 +111,36 @@ def product_details(request, slug):
 
     return render(request, "main/product_details.html", {"product": product})
 
-
-@login_required
-def profile_view(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related('items__product')
-    return render(request, 'main/account/profile.html', {'user': request.user, 'orders': orders})
-
-def login_user(request):
-    if request.user.is_authenticated:
-        return redirect("home")
-
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-
-        user = authenticate(username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            messages.success(
-                request, f"Pomyślnie zalogowano. Cieszymy się, że z nami jesteś!"
-            )
-
-            if request.session.get("next"):
-                return redirect(request.session.pop("next"))
-
-            return redirect("home")
-        else:
-            messages.error(request, "Nieprawidłowy login lub hasło.")
-            return redirect("login_user")
-
-    if request.GET.get("next"):
-        request.session["next"] = request.GET["next"]
-
+def login_form(request):
     return render(request, "main/account/login.html")
+def register_form(request):
+    return render(request, "main/account/register.html")
 
-
-def register(request):
+@require_POST
+def auth_login(request):
     if request.user.is_authenticated:
-        return redirect("home")
+        messages.success(request, "Już jesteś zalogowany.")
+        return JsonResponse({"status": "success", "redirect_url": "/"})
 
-    if request.method == "POST":
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        messages.success(request, "Pomyślnie zalogowano.")
+        return JsonResponse({"status": "success", "redirect_url": "/profile/"})
+    else:
+        return JsonResponse({"status": "error", "message": "Błędne dane logowania"}, status=401)
+
+@require_POST
+def auth_register(request):
+    if request.user.is_authenticated:
+        messages.error(request, "Wyloguj się i spróbuje ponownie zarejestrować nowe konto.")
+        return JsonResponse({"status": "success", "redirect_url": "/"})
+
+    try:
         username = request.POST.get("username")
         email = request.POST.get("email")
         password = request.POST.get("password")
@@ -170,26 +159,63 @@ def register(request):
         
         profile.save()
 
-        messages.success(request, "Twoje konto zostało pomyślnie utworzone.")
         login(request, user)
-        return redirect("home")
+        messages.success(request, "Twoje konto zostało pomyślnie utworzone.")
+        return JsonResponse({"status": "success", "redirect_url": "/profile/"})
+    except IntegrityError:
+        return JsonResponse({"status": "error", "message": "Ten login jest już zajęty."}, status=400)
+    except Exception:
+        return JsonResponse({"status": "error", "message": "Coś poszło nie tak podczas rejestracji."}, status=500)
 
-    return render(request, "main/account/register.html")
-
-
-def logout_user(request):
-    logout(request)
-    messages.success(request, "Pomyślnie wylogowano. Zapraszamy ponownie!")
-    return redirect("home")
-
+@require_POST
+def auth_logout(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Pomyślnie wylogowano.")
+        return JsonResponse({"status": "success", "redirect_url": "/"})
+    return JsonResponse({"status": "success", "redirect_url": "/"})
 
 @login_required
-def delete_account(request):
-    if request.method == "POST":
+def profile_info(request):
+    return render(request, "main/account/profile_info.html", {
+        'user': request.user,
+        "active_tab": "info"
+    })
+
+@login_required
+def profile_orders(request):
+    orders = Order.objects.filter(user=request.user).prefetch_related("items_products")
+    return render(request, "main/account/profile_orders.html", {
+        "user": request.user, 
+        "orders": orders,
+        "active_tab": "orders"
+    })
+            
+@login_required
+def profile_reports(request):
+    return render(request, "main/account/profile_reports.html", {
+        "user": request.user,
+        "active_tab": "reports"
+    })
+
+@login_required
+@require_POST
+def profile_delete(request):
+    try:
         user = request.user
         user.delete()
-        messages.success(request, "Twoje konto zostało pomyślnie usunięte.")
-        return redirect("home")
+        return JsonResponse({
+            "status": "success",
+            "message": "Twoje konto zostało pomyślnie usunięte.",
+            "redirect_url": "/"
+        }, status=200)
+    
+    except Exception as e:
+        messages.error(request, "Wystąpił nieoczekiwany błąd. Nie udało się usunąć konta.")
+        return JsonResponse({
+            "status": "error",
+            "message": "Nie udało się usunąc konta."
+        }, status=500)
 
 @transaction.atomic
 def checkout(request):

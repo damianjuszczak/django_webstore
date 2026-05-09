@@ -13,12 +13,18 @@ urlpatterns = [
 
     path('categories/<slug:category_slug>/', views.category_details, name='category_details'),
 
+    # Auth
+    path('login/', views.login_form, name='login_form'),
+    path('register/', views.register_form, name='register_form'),
+    path('api/auth/login/', views.auth_login, name='login_user'),
+    path('api/auth/register/', views.auth_register, name='register_user'),
+    path('api/auth/logout/', views.auth_logout, name='logout_user'),
+
     # Account
-    path('login', views.login_user, name='login_user'),
-    path('register', views.register, name='register_user'),
-    path('logout', views.logout_user, name='logout_user'),
-    path('profile', views.profile_view, name='profile_view'),
-    path('delete-account/', views.delete_account, name='delete_account'),
+    path('profile/', views.profile_info, name='profile_info'),
+    path('profile/orders/', views.profile_orders, name='profile_orders'),
+    path('profile/reports/', views.profile_reports, name='profile_reports'),
+    path('api/profile/delete/', views.profile_delete, name='profile_delete'),
     
     # Cart URLs
     path('cart/', views.cart, name="cart"),

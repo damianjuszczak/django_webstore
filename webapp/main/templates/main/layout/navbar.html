@@ -51,12 +51,14 @@
                     <i class="fa-solid fa-user me-2"></i>{{ request.user.username }}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow dropdown-menu-dark mt-2 border-0">
-                    <li><a class="dropdown-item py-2" href="{% url 'profile_view' %}">Profil użytkownika</a></li>
+                    <li><a class="dropdown-item py-2" href="{% url 'profile_info' %}">Profil użytkownika</a></li>
                     <li><hr class="dropdown-divider border-secondary"></li>
                     <li>
-                        <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
+                        <form method="POST" action="{% url 'logout_user' %}" class="logout-form" class="m-0 p-0">
                             {% csrf_token %}
-                            <button class="dropdown-item text-danger fw-bold" type="submit">Wyloguj się</button>
+                            <button class="dropdown-item text-danger fw-bold" type="submit">
+                                Wyloguj się
+                            </button>
                         </form>
                     </li>
                 </ul>
