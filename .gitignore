@@ -12,6 +12,7 @@ env/
 *$py.class
 *.pyc
 *.sqlite3
+webapp/.env
 
 # --- Foldery lokalne / Media ---
 static/
