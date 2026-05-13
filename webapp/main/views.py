@@ -206,7 +206,6 @@ def profile_delete(request):
         user.delete()
         return JsonResponse({
             "status": "success",
-            "message": "Twoje konto zostało pomyślnie usunięte.",
             "redirect_url": "/"
         }, status=200)
     
