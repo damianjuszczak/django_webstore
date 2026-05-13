@@ -16,7 +16,6 @@
       
       <ul class="navbar-nav flex-grow-1 justify-content-evenly px-lg-5 mb-2 mb-lg-0 custom-nav">
         {% for link in links %}
-          
           {% if link.children %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle text-uppercase fw-bold" href="#" id="catDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.05rem; letter-spacing: 1px;">
@@ -28,37 +27,54 @@
                 {% endfor %}
               </ul>
             </li>
-          
           {% else %}
             <li class="nav-item">
               <a class="nav-link text-uppercase fw-bold" style="font-size: 1.05rem; letter-spacing: 1px;" href="{{ link.href }}">
                 <i class="fa-solid {{ link.icon }} me-1"></i> {{ link.name }}
-                
                 {% if link.name == 'Koszyk' and cart|length > 0 %}
                   <span class="badge bg-secondary rounded-pill ms-1">{{ cart|length }}</span>
                 {% endif %}
               </a>
             </li>
           {% endif %}
-
         {% endfor %}
       </ul>
       
       <div class="d-flex align-items-center gap-3">
         {% if request.user.is_authenticated %}
-            <div class="dropdown">
-                <a href="#" class="btn btn-outline-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-user me-2"></i>{{ request.user.username }}
+            <div class="nav-item dropdown profile-dropdown">
+                <a class="nav-link d-flex align-items-center py-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="me-2 text-white fw-bold d-none d-lg-inline">{{ request.user.username }}</span>
+                    
+                    <div class="avatar-wrapper">
+                        {% if request.user.profile.avatar %}
+                            <img src="{{ request.user.profile.avatar.url }}" class="rounded-circle border border-2 border-info shadow-sm" style="width: 42px; height: 42px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'main/img/default_avatar.png' %}" class="rounded-circle border border-2 border-info shadow-sm" style="width: 42px; height: 42px; object-fit: cover;">
+                        {% endif %}
+                    </div>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow dropdown-menu-dark mt-2 border-0">
-                    <li><a class="dropdown-item py-2" href="{% url 'profile_view' %}">Profil użytkownika</a></li>
-                    <li><hr class="dropdown-divider border-secondary"></li>
-                    <li>
+                
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="profileDropdown">
+                    <div class="dropdown-header-custom text-center">
+                        <span>Zalogowany jako</span>
+                        <strong class="d-block text-white">{{ request.user.username }}</strong>
+                        <small class="user-email">{{ request.user.email|default:"Brak e-maila" }}</small>
+                    </div>
+                    
+                    <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fa-solid fa-user-circle me-2"></i>Mój Profil</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-receipt me-2"></i>Moje Zamówienia</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-heart me-2"></i>Lista życzeń</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-headset me-2"></i>Pomoc i Wsparcie</a></li>
+                    
+                    <div class="logout-wrapper mt-2">
                         <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
                             {% csrf_token %}
-                            <button class="dropdown-item text-danger fw-bold" type="submit">Wyloguj się</button>
+                            <button class="btn btn-outline-danger btn-sm w-100 fw-bold" type="submit">
+                                <i class="fa-solid fa-power-off me-2"></i>Wyloguj się
+                            </button>
                         </form>
-                    </li>
+                    </div>
                 </ul>
             </div>
         {% else %}
@@ -71,58 +87,113 @@
   </div>
 </nav>
 
- <style>
-    /* Podstawa linków */
+<style>
+    /* --- OGÓLNE STYLE NAWIGACJI --- */
     .custom-nav .nav-link { 
         position: relative; 
         padding-bottom: 8px; 
         transition: 0.3s; 
     }
 
-    /* Linia - używamy !important, żeby strzałka bootstrapa nie psułą */
     .custom-nav .nav-link::after {
-        content: '' !important; /* Zamiast strzalki pusta treść */
+        content: '' !important;
         position: absolute; 
-        width: 0; 
-        height: 3px; 
-        bottom: 0; 
-        left: 0;
+        width: 0; height: 3px; bottom: 0; left: 0;
         background-color: #0dcaf0; 
         transition: width 0.3s ease;
-        border-radius: 2px;
-        display: block !important; /* Upewniamy się, że element istnieje */
-        border: none !important; /* Usuwamy obramowanie, które tworzyło strzałkę */
+        border-radius: 2px; 
+        display: block !important; 
+        border: none !important;
     }
 
-    /* Animacja linii po najechaniu */
-    .custom-nav .nav-link:hover::after { 
-        width: 100%; 
+    .custom-nav .nav-link:hover::after { width: 100%; }
+    .custom-nav .nav-link:hover { color: #fff !important; transform: translateY(-2px); }
+
+    /* --- CZYSTY I SMUKŁY DROPDOWN PROFILU --- */
+    .profile-dropdown .dropdown-menu {
+        right: 0 !important;
+        left: auto !important;
+        width: 220px;
+        border-radius: 12px;
+        background: #1a1d20 !important;
+        padding: 0;
+        overflow: hidden;
+        margin-top: 10px !important;
+        border: 1px solid #0dcaf0 !important; /* Stała, elegancka ramka */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
     }
 
-    .custom-nav .nav-link:hover { 
-        color: #fff !important; 
-        transform: translateY(-2px); 
+    /* HOVER I MOST DLA MYSZKI */
+    @media (min-width: 992px) {
+        .profile-dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+        }
+        .profile-dropdown::before {
+            content: ''; 
+            position: absolute; 
+            top: 100%; 
+            left: 0; 
+            width: 100%; 
+            height: 20px; 
+            display: block;
+        }
     }
 
-    /* Styl rozwijanego menu (Dropdown) */
-    .dropdown-menu-dark { 
-        background-color: #212529; 
-        border-radius: 10px; 
-        border: 1px solid rgba(255,255,255,0.1);
+    /* NAGŁÓWEK BOXA */
+    .dropdown-header-custom {
+        background: #212529;
+        padding: 15px 10px;
+        border-bottom: 1px solid rgba(13, 202, 240, 0.3);
     }
 
-    .dropdown-item:hover { 
-        background-color: #343a40; 
-        color: #0dcaf0 !important; 
-        padding-left: 25px; 
+    .dropdown-header-custom span {
+        font-size: 0.65rem;
+        color: #0dcaf0;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
     }
 
-    /* Logo i Przyciski */
+    .user-email {
+        display: block;
+        font-size: 0.75rem;
+        color: #adb5bd !important;
+        margin-top: 2px;
+        word-break: break-all;
+    }
+
+    /* ELEMENTY LISTY */
+    .profile-dropdown .dropdown-item {
+        padding: 10px 15px;
+        color: #f8f9fa !important;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .profile-dropdown .dropdown-item i {
+        width: 20px;
+        color: #0dcaf0;
+    }
+
+    .profile-dropdown .dropdown-item:hover {
+        background: rgba(13, 202, 240, 0.1) !important;
+        color: #0dcaf0 !important;
+        padding-left: 22px;
+    }
+
+    /* SEKACJA WYLOGOWANIA */
+    .logout-wrapper {
+        padding: 12px;
+        background: #15181b;
+    }
+
+    /* ANIMACJA AWATARA */
+    .avatar-wrapper { transition: 0.3s; }
+    .profile-dropdown:hover .avatar-wrapper { transform: scale(1.1); }
+
+    /* LOGO I PRZYCISKI */
     .logo-hover { transition: 0.3s; }
     .logo-hover:hover { transform: scale(1.03); }
-
-    .btn-outline-light:hover { 
-        background: #fff; 
-        color: #212529 !important; 
-    }
+    .btn-outline-light:hover { background: #fff; color: #212529 !important; }
 </style>
