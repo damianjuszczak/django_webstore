@@ -1,0 +1,70 @@
+{% extends 'main/layout/layout.html' %}
+
+{% block title %}{{ product.name }} | Django Store{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none">Strona główna</a></li>
+    <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}" class="text-decoration-none">{{ product.category.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            {% if product.images.all %}
+                {% for img in product.images.all %}
+                    {% if img.main_photo %}
+                        <img src="{{ img.image.url }}" class="img-fluid w-100" alt="{{ img.alt_text }}">
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <span class="text-muted">Brak zdjęcia</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1 mb-2">
+            {{ product.manufacturer.name }}
+        </span>
+        
+        <h1 class="fw-bold mb-3">{{ product.name }}</h1>
+        <h2 class="text-primary fw-bold mb-4">{{ product.price }} PLN</h2>
+        
+        <p class="lead">{{ product.description }}</p>
+        
+        <p class="mb-4"><strong>Dostępność:</strong> 
+            {% if product.stock > 0 %}
+                <span class="text-success">W magazynie ({{ product.stock }} szt.)</span>
+            {% else %}
+                <span class="text-danger">Brak w magazynie</span>
+            {% endif %}
+        </p>
+
+        {% if product.technical_specs %}
+            <h4 class="mt-4">Specyfikacja:</h4>
+            <ul class="list-group list-group-flush mb-4">
+                {% for key, value in product.technical_specs.items %}
+                    <li class="list-group-item bg-transparent px-0">
+                        <strong>{{ key }}:</strong> {{ value }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form action="{% url 'cart_add' product.id %}" method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark btn-lg rounded-pill px-5" {% if product.stock <= 0 %}disabled{% endif %}>
+                <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do koszyka
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
