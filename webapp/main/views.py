@@ -15,7 +15,7 @@ from django.views.decorators.http import require_POST
 
 
 def index(request):
-    products = Product.objects.filter(is_available=True).order_by('?')[:4]
+    products = Product.objects.select_related('manufacturer').prefetch_related('images').filter(is_available=True).order_by('?')[:4]
     return render(request, 'main/index.html', {'products': products})
 
 
@@ -98,13 +98,9 @@ def search(request):
 
 def category_details(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
-
-    products = Product.objects.filter(category=category, is_available=True)
-
-    return render(
-        request, "main/category.html", {"category": category, "products": products}
-    )
-
+    
+    products = Product.objects.select_related('manufacturer').prefetch_related('images').filter(category=category, is_available=True)
+    return render(request, "main/category.html", {"category": category, "products": products})
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)

@@ -91,7 +91,8 @@ WSGI_APPLICATION = 'webapp.wsgi.application' #created as an implementation-neutr
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}') #fallback to local sqlite3 database
+        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+        conn_max_age=300  # keeps connection open for 5 min
     )
 }
 
