@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
 
     # custom apps
     'main',
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [ # now default, used for verification/modification processing data from requests
     'django.middleware.security.SecurityMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,6 +59,10 @@ MIDDLEWARE = [ # now default, used for verification/modification processing data
 ]
 
 ROOT_URLCONF = 'webapp.urls' 
+
+# INTERNAL_IPS = [
+#     "127.0.0.1",
+# ]
 
 TEMPLATES = [
     {
