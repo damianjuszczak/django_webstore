@@ -166,7 +166,7 @@ def auth_register(request):
         return JsonResponse({"status": "error", "message": "Ten login jest już zajęty."}, status=400)
     except Exception:
         return JsonResponse({"status": "error", "message": "Coś poszło nie tak podczas rejestracji."}, status=500)
-
+    
 @require_POST
 def auth_logout(request):
     if request.user.is_authenticated:
@@ -174,6 +174,36 @@ def auth_logout(request):
         messages.success(request, "Pomyślnie wylogowano.")
         return JsonResponse({"status": "success", "redirect_url": "/"})
     return JsonResponse({"status": "success", "redirect_url": "/"})
+
+@login_required
+@require_POST
+def profile_change_info(request):
+    try:
+        data = request.POST
+        user = request.user
+
+        with transaction.atomic():
+            user.profile.phone = data.get("phone", user.profile.phone)
+            user.email = data.get("email", user.email)
+            user.profile.address = data.get("address", user.profile.address)
+            user.profile.zip_code = data.get("zip-code", user.profile.zip_code)
+            user.profile.city = data.get("city", user.profile.city)
+            user.profile.save()
+
+        return JsonResponse({
+            "status": "success",
+            "message": "Dane zostały zaktualizowane."
+        })
+
+    except Profile.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Profil nie istnieje."}, status=404)
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return JsonResponse({
+            "status": "error",
+            "message": "Wystąpił błąd podczas zapisu danych."
+        }, status=500)
 
 @login_required
 def profile_info(request):
@@ -209,7 +239,7 @@ def profile_delete(request):
             "redirect_url": "/"
         }, status=200)
     
-    except Exception as e:
+    except Exception:
         messages.error(request, "Wystąpił nieoczekiwany błąd. Nie udało się usunąć konta.")
         return JsonResponse({
             "status": "error",
