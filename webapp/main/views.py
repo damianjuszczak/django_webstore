@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.db.models import Q, F
 from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
+from django.conf import settings
+from main.utilities import get_live_exchange_rates
 
 
 def index(request):
@@ -100,11 +102,22 @@ def category_details(request, category_slug):
 
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
+    
+    currency = request.session.get('currency', getattr(settings, 'DEFAULT_CURRENCY', 'PLN'))
+    live_rates = get_live_exchange_rates()
+    rate = live_rates.get(currency, 1.0)
 
-    if min_price:
-        products = products.filter(price__gte=min_price)
-    if max_price:
-        products = products.filter(price__lte=max_price)
+    try:
+        if min_price:
+            #convert user curreny choice to the one in database
+            converted_min = float(min_price) / float(rate)
+            products = products.filter(price__gte=converted_min)
+        if max_price:
+            #convert user curreny choice to the one in database
+            converted_max = float(max_price) / float(rate)
+            products = products.filter(price__lte=converted_max)
+    except ValueError:
+        pass
 
     context = {
         "category": category,
