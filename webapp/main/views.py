@@ -199,6 +199,7 @@ def profile_change_info(request):
             user.profile.zip_code = data.get("zip_code", user.profile.zip_code)
             user.profile.city = data.get("city", user.profile.city)
             user.profile.save()
+            user.save()
         return JsonResponse({
             "status": "success",
             "message": "Dane zostały zaktualizowane."
