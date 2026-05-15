@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-image: url("{% static 'main/img/os_background_pattern.png' %}");
+    background-image: url("../img/os_background_pattern.png");
     background-size: 500px;
     background-repeat: repeat;
     background-attachment: fixed;
