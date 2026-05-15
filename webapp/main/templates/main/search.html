@@ -1,5 +1,7 @@
 {% extends 'main/layout/layout.html' %}
 
+{% load currency_tags %}
+
 {% block title %}Wyszukiwarka{% endblock %}
 
 {% block content %}
@@ -39,7 +41,7 @@
                                 <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
                             </h5>
                             
-                            <h4>{{ product.price }} PLN</h4>
+                            <h4>{% convert_price product.price %}</h4>
                             
                             <form action="{% url 'cart_add' product.id %}" method="post" class="mt-3">
                                 {% csrf_token %}
