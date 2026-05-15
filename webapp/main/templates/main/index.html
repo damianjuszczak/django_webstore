@@ -65,8 +65,8 @@
                         <span class="h5 fw-bold text-dark mb-0">{{ product.price }} PLN</span>
                         <form action="{% url 'cart_add' product.id %}" method="post" class="m-0">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-dark btn-sm rounded px-3">
-                                <i class="bi bi-plus"></i> Do koszyka
+                            <button type="submit" class="btn btn-dark btn-sm rounded">
+                                <i class="fa-solid fa-bag-shopping"></i>
                             </button>
                         </form>
                     </div>
