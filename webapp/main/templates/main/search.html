@@ -8,7 +8,7 @@
 
     <form method="GET" action="{% url 'search' %}" class="mb-4 d-flex">
         <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Wpisz nazwę produktu..." required>
-         <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">
+         <button type="submit" class="btn btn-dark btn-sm rounded px-3">
                                     <i class="bi bi-plus"></i> Szukaj
                                 </button>
     </form>
@@ -43,7 +43,7 @@
                             
                             <form action="{% url 'cart_add' product.id %}" method="post" class="mt-3">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">
+                                <button type="submit" class="btn btn-dark btn-sm rounded px-3">
                                     <i class="bi bi-plus"></i> Dodaj do koszyka
                                 </button>
                             </form>

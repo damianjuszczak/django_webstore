@@ -73,7 +73,7 @@
 
         <form action="{% url 'cart_add' product.id %}" method="post" class="mt-4">
             {% csrf_token %}
-            <button type="submit" class="btn btn-dark btn-lg rounded-pill px-5" {% if product.stock <= 0 %}disabled{% endif %}>
+            <button type="submit" class="btn btn-dark btn-lg rounded px-5" {% if product.stock <= 0 %}disabled{% endif %}>
                 <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do koszyka
             </button>
         </form>

@@ -35,7 +35,7 @@
                 <i class="fa-solid {{ link.icon }} me-1"></i> {{ link.name }}
                 
                 {% if link.name == 'Koszyk' and cart|length > 0 %}
-                  <span class="badge bg-secondary rounded-pill ms-1">{{ cart|length }}</span>
+                  <span class="badge bg-secondary rounded ms-1">{{ cart|length }}</span>
                 {% endif %}
               </a>
             </li>
@@ -47,7 +47,7 @@
       <div class="d-flex align-items-center gap-3">
         {% if request.user.is_authenticated %}
             <div class="dropdown">
-                <a href="#" class="btn btn-outline-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <a href="#" class="btn btn-outline-light rounded px-4 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fa-solid fa-user me-2"></i>{{ request.user.username }}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow dropdown-menu-dark mt-2 border-0">
@@ -65,7 +65,7 @@
             </div>
         {% else %}
             <a class="btn btn-link text-white text-decoration-none fw-bold" href="/login">LOGOWANIE</a>
-            <a class="btn btn-outline-light px-4 rounded-pill fw-bold" href="/register">DOŁĄCZ</a>
+            <a class="btn btn-outline-light px-4 rounded fw-bold" href="/register">DOŁĄCZ</a>
         {% endif %}
       </div>
 
