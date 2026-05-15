@@ -76,10 +76,8 @@ def cart(request):
     cart = Cart(request)
     return render(request, "main/cart.html", {"cart": cart})
 
-
 def about(request):
     return render(request, "main/about.html")
-
 
 def search(request):
     query = request.GET.get("q", "")
@@ -186,7 +184,7 @@ def profile_change_info(request):
             user.profile.phone = data.get("phone", user.profile.phone)
             user.email = data.get("email", user.email)
             user.profile.address = data.get("address", user.profile.address)
-            user.profile.zip_code = data.get("zip-code", user.profile.zip_code)
+            user.profile.zip_code = data.get("zip_code", user.profile.zip_code)
             user.profile.city = data.get("city", user.profile.city)
             user.profile.save()
         return JsonResponse({
