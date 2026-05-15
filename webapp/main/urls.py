@@ -25,6 +25,7 @@ urlpatterns = [
     path('profile/orders/', views.profile_orders, name='profile_orders'),
     path('profile/reports/', views.profile_reports, name='profile_reports'),
     path('api/profile/delete/', views.profile_delete, name='profile_delete'),
+    path('api/profile/profile_change_info/', views.profile_change_info, name='profile_change_info'),
     
     # Cart URLs
     path('cart/', views.cart, name="cart"),

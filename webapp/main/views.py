@@ -76,10 +76,8 @@ def cart(request):
     cart = Cart(request)
     return render(request, "main/cart.html", {"cart": cart})
 
-
 def about(request):
     return render(request, "main/about.html")
-
 
 def search(request):
     query = request.GET.get("q", "")
@@ -178,7 +176,7 @@ def auth_register(request):
         return JsonResponse({"status": "error", "message": "Ten login jest już zajęty."}, status=400)
     except Exception:
         return JsonResponse({"status": "error", "message": "Coś poszło nie tak podczas rejestracji."}, status=500)
-
+    
 @require_POST
 def auth_logout(request):
     if request.user.is_authenticated:
@@ -186,6 +184,36 @@ def auth_logout(request):
         messages.success(request, "Pomyślnie wylogowano.")
         return JsonResponse({"status": "success", "redirect_url": "/"})
     return JsonResponse({"status": "success", "redirect_url": "/"})
+
+@login_required
+@require_POST
+def profile_change_info(request):
+    try:
+        data = request.POST
+        user = request.user
+
+        with transaction.atomic():
+            user.profile.phone = data.get("phone", user.profile.phone)
+            user.email = data.get("email", user.email)
+            user.profile.address = data.get("address", user.profile.address)
+            user.profile.zip_code = data.get("zip_code", user.profile.zip_code)
+            user.profile.city = data.get("city", user.profile.city)
+            user.profile.save()
+        return JsonResponse({
+            "status": "success",
+            "message": "Dane zostały zaktualizowane."
+        })
+
+    except Profile.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Profil nie istnieje."}, status=404)
+    except Exception as e:
+        messages.error(request, "Coś poszło nie tak, spróbuj ponownie.")
+        import traceback
+        print(traceback.format_exc())
+        return JsonResponse({
+            "status": "error",
+            "redirect_url": "/profile/"
+        }, status=500)
 
 @login_required
 def profile_info(request):
@@ -221,7 +249,7 @@ def profile_delete(request):
             "redirect_url": "/"
         }, status=200)
     
-    except Exception as e:
+    except Exception:
         messages.error(request, "Wystąpił nieoczekiwany błąd. Nie udało się usunąć konta.")
         return JsonResponse({
             "status": "error",
