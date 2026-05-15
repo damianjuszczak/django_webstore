@@ -189,7 +189,6 @@ def profile_change_info(request):
             user.profile.zip_code = data.get("zip-code", user.profile.zip_code)
             user.profile.city = data.get("city", user.profile.city)
             user.profile.save()
-
         return JsonResponse({
             "status": "success",
             "message": "Dane zostały zaktualizowane."
@@ -198,11 +197,12 @@ def profile_change_info(request):
     except Profile.DoesNotExist:
         return JsonResponse({"status": "error", "message": "Profil nie istnieje."}, status=404)
     except Exception as e:
+        messages.error(request, "Coś poszło nie tak, spróbuj ponownie.")
         import traceback
         print(traceback.format_exc())
         return JsonResponse({
             "status": "error",
-            "message": "Wystąpił błąd podczas zapisu danych."
+            "redirect_url": "/profile/"
         }, status=500)
 
 @login_required
