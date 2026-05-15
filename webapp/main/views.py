@@ -4,7 +4,7 @@ from .cart import Cart
 from .contact import ContactForm
 
 from django.http import JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -118,6 +118,18 @@ def category_details(request, category_slug):
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
     return render(request, "main/product_details.html", {"product": product})
+
+def change_currency(request):
+    if request.method == 'POST':
+        currency = request.POST.get('currency', 'PLN')
+        
+        allowed_currencies = ['PLN', 'EUR', 'USD']
+        
+        if currency in allowed_currencies:
+            request.session['currency'] = currency #save to user session
+            
+    next_url = request.POST.get('next', '/') #redirect back to the same page
+    return redirect(next_url)
 
 def login_form(request):
     return render(request, "main/account/login.html")

@@ -11,12 +11,16 @@ def get_live_exchange_rates():
         url = 'https://open.er-api.com/v6/latest/PLN'
         
         #request api
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
+        response.raise_for_status() #error if api is down
         data = response.json() #api response into a python dictionary
         
         #filer wanted currencies
         all_rates = data.get('rates', {})
         allowed_currencies = ['PLN', 'EUR', 'USD']
+
+        if not filtered_rates:
+            raise ValueError("API returned empty data")
         
         filtered_rates = {k: v for k, v in all_rates.items() if k in allowed_currencies}
         
