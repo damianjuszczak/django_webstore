@@ -18,7 +18,6 @@ def index(request):
     products = Product.objects.select_related('manufacturer').prefetch_related('images').filter(is_available=True).order_by('?')[:4]
     return render(request, 'main/index.html', {'products': products})
 
-
 def contact(request):
     # Jeśli formularz został wysłany
     if request.method == "POST":
@@ -118,7 +117,6 @@ def category_details(request, category_slug):
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
-
     return render(request, "main/product_details.html", {"product": product})
 
 def login_form(request):
@@ -225,7 +223,7 @@ def profile_info(request):
 
 @login_required
 def profile_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related("items_products")
+    orders = Order.objects.filter(user=request.user).prefetch_related("items__product")
     return render(request, "main/account/profile_orders.html", {
         "user": request.user, 
         "orders": orders,
@@ -257,33 +255,12 @@ def profile_delete(request):
             "message": "Nie udało się usunąc konta."
         }, status=500)
 
-@transaction.atomic
-def checkout(request):
-    cart = Cart(request)
-
-    if len(cart) == 0:
-        messages.error(request, "Twój koszyk jest pusty.")
-        return redirect('cart_view')
-
-    order = Order.objects.create(
-        user=request.user,
-        first_name=request.user.first_name,
-        last_name=request.user.last_name,
-        email=request.user.email,
-        phone="user.profile.phone",
-        address="user.profile.address",
-        city="user.profile.city",
-        zip_code="user.profile.zip_code",
-        country="user.profile.country",
-    )
-
+def process_order_items(order, items_list, request):
     items_added = 0
-
-    for item in cart:
+    for item in items_list:
         product = item['product']
         quantity = item['quantity']
-        price = product.price
-
+        
         updated = Product.objects.filter(
             id=product.id, 
             stock__gte=quantity
@@ -293,18 +270,126 @@ def checkout(request):
             OrderItem.objects.create(
                 order=order,
                 product=product,
-                price=price,
+                price=product.price,
                 quantity=quantity
             )
             items_added += 1
         else:
-            messages.warning(request, f"Produkt {product.name} jest niedostępny w wybranej ilości.")
+            messages.warning(request, f"Produkt {product.name} jest niedostępny.")
+    return items_added
 
-    if items_added > 0:
+@login_required
+@transaction.atomic
+def order_create(request):
+    cart = Cart(request)
+    if len(cart) == 0:
+        messages.error(request, "Twój koszyk jest pusty.")
+        return redirect('cart_view')
+    
+    order = Order.objects.create(
+        user=request.user,
+        first_name=request.user.first_name,
+        last_name=request.user.last_name,
+        email=request.user.email,
+        phone=request.user.profile.phone,
+        address=request.user.profile.address,
+        city=request.user.profile.city,
+        zip_code=request.user.profile.zip_code,
+        country=request.user.profile.country
+    )
+
+    items_to_add = [{'product': item['product'], 'quantity': item['quantity']} for item in cart]
+    added_count = process_order_items(order, items_to_add, request)
+
+    referer_url = request.META.get('HTTP_REFERER', '')
+    if added_count > 0:
         request.session['cart'] = {}
         request.session.modified = True
-        messages.success(request, "Zamówienie zostało złożone pomyślnie!")
+
+        if '/profile/orders' in referer_url:
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Zamówienie zostało złożone.',
+            }, status=200)
+        
+        else:
+            messages.success(request, "Zamówienie zostało złożone.")
+            return redirect('profile_orders')
+            
     else:
         transaction.set_rollback(True)
+        if '/profile/orders' in referer_url:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Brak produktów na stanie.'
+            }, status=400)
+        else:
+            messages.error(request, "Brak produktów na stanie.")
+            return redirect('profile_orders')
 
-    return redirect('cart')
+@login_required
+@transaction.atomic
+def order_renew(request, order_id):
+    old_order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    p = request.user.profile
+    new_order = Order.objects.create(
+        user=request.user,
+        first_name=request.user.first_name,
+        last_name=request.user.last_name,
+        email=request.user.email,
+        phone=request.user.profile.phone,
+        address=request.user.profile.address,
+        city=request.user.profile.city,
+        zip_code=request.user.profile.zip_code,
+        country=request.user.profile.country
+    )
+
+    items_to_add = [
+        {'product': item.product, 'quantity': item.quantity} 
+        for item in old_order.items.all() 
+        if item.product.is_available
+    ]
+
+    added_count = process_order_items(new_order, items_to_add, request)
+
+    referer_url = request.META.get('HTTP_REFERER', '')
+    if added_count > 0:
+        if '/profile/orders' in referer_url:
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Zamówienie zostało złożone.',
+            }, status=200)
+        
+        else:
+            messages.success(request, "Zamówienie zostało złożone.")
+            return redirect('profile_orders')
+            
+    else:
+        transaction.set_rollback(True)
+        if '/profile/orders' in referer_url:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Brak produktów na stanie.'
+            }, status=400)
+        else:
+            messages.error(request, "Brak produktów na stanie.")
+            return redirect('profile_orders')
+
+@login_required
+@require_POST
+def order_cancel(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if order.status in ['new', 'processing']:
+        order.status = 'cancelled'
+        order.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Zamówienie zostało anulowane.'
+        }, status=200)
+    else:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Nie można anulować zamówienia, które zostało już wysłane lub zrealizowane.'
+        }, status=400)

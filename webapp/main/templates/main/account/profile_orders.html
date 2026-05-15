@@ -1,6 +1,9 @@
-{% extends "main/account/profile_base.html" %}
+git checkout feature/order{% extends "main/account/profile_base.html" %}
+{% load static %}
+{% block title %}Profil > Zamówienia{% endblock %}
 
 {% block profile_content %}
+    {% csrf_token %}
     <div class="order-card shadow-sm p-4 position-relative">
 
         <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
@@ -10,36 +13,34 @@
         <hr class="mb-4">
 
         {% for order in orders %}
-            <div class="border rounded p-4">
+            <div class="border rounded px-2 mb-4">
                 <div class="d-flex justify-content-between align-items-center m-2">
-                    <span>Zamówienie - {{ order.created_at|date:"d.m.Y H:i" }}</span>
-                    
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge px-3 py-2
-                            {% if order.status == 'new' %}
-                                bg-warning text-dark
-                            {% elif order.status == 'processing' %}
-                                bg-primary
-                            {% elif order.status == 'shipped' %}
-                                bg-info text-dark
-                            {% elif order.status == 'completed' %}
-                                bg-success
-                            {% elif order.status == 'canceled' %}
-                                bg-danger
-                            {% else %}
-                                bg-secondary
-                            {% endif %}
-                        ">
+                        <span class="badge small px-2 py-1 
+                            {% if order.status == 'new' %} bg-warning text-dark
+                            {% elif order.status == 'processing' %} bg-primary
+                            {% elif order.status == 'shipped' %} bg-info text-dark
+                            {% elif order.status == 'completed' %} bg-success
+                            {% elif order.status == 'cancelled' %} bg-danger
+                            {% else %} bg-secondary {% endif %}">
                             {{ order.get_status_display }}
                         </span>
-
-                        {% if order.status == 'new' or order.status == 'canceled' %}
-                        <form action="#" method="POST" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="badge bg-danger border-0 px-3 py-2 text-white shadow-sm">Anuluj</button>
-                        </form>
-                        {% endif %}
+                        <span>Zamówienie - {{ order.created_at|date:"d.m.Y H:i" }}</span>
                     </div>
+
+                    {% if order.status == 'new' or order.status == 'processing' %}
+                        <span class="badge bg-danger cancel-order-js" style="cursor: pointer;" data-orderid="{{ order.id }}">
+                            <i class="fas fa-times-circle me-1"></i> Anuluj zamówienie
+                        </span>
+                    {% elif order.status == 'cancelled' %}
+                        <span class="badge bg-primary renew-order-js" style="cursor: pointer;" data-orderid="{{ order.id }}">
+                            <i class="fas fa-redo me-1"></i> Zamów ponownie
+                        </span>
+                    {% elif order.status == 'completed' %}
+                        <span class="badge bg-success" style="cursor: pointer;">
+                            <i class="fas fa-file-invoice me-1"></i> Pobierz fakturę
+                        </span>
+                    {% endif %}
                 </div>
                 
                 <div class="accordion" id="orderAccordion{{ order.id }}">
@@ -103,4 +104,7 @@
             <p>Nie masz jeszcze żadnych zamówień.</p>
         {% endfor %}
     </div>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'main/js/profile_orders.js' %}"></script>
 {% endblock %}
