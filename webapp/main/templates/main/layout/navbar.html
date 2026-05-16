@@ -4,6 +4,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 sticky-top py-3">
   <div class="container-sm">
+    
     <a class="navbar-brand d-flex align-items-center" href="/">
         <img src="{% static 'main/img/os_logo1.png' %}" style="height: 65px; width: auto;" class="logo-hover">
     </a>
@@ -16,6 +17,7 @@
       
       <ul class="navbar-nav flex-grow-1 justify-content-evenly px-lg-5 mb-2 mb-lg-0 custom-nav">
         {% for link in links %}
+          
           {% if link.children %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle text-uppercase fw-bold" href="#" id="catDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.05rem; letter-spacing: 1px;">
@@ -27,20 +29,37 @@
                 {% endfor %}
               </ul>
             </li>
+          
           {% else %}
             <li class="nav-item">
               <a class="nav-link text-uppercase fw-bold" style="font-size: 1.05rem; letter-spacing: 1px;" href="{{ link.href }}">
                 <i class="fa-solid {{ link.icon }} me-1"></i> {{ link.name }}
+                
                 {% if link.name == 'Koszyk' and cart|length > 0 %}
-                  <span class="badge bg-secondary rounded-pill ms-1">{{ cart|length }}</span>
+                  <span class="badge bg-secondary rounded ms-1">{{ cart|length }}</span>
                 {% endif %}
               </a>
             </li>
           {% endif %}
+
         {% endfor %}
       </ul>
       
       <div class="d-flex align-items-center gap-3">
+        
+        <form action="{% url 'change_currency' %}" method="post" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            
+            <select name="currency" onchange="this.form.submit()" class="form-select form-select-sm bg-dark text-white border-secondary fw-bold" style="cursor: pointer;">
+                {% for curr in AVAILABLE_CURRENCIES %}
+                    <option value="{{ curr }}" {% if curr == ACTIVE_CURRENCY %}selected{% endif %}>
+                        {{ curr }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+
         {% if request.user.is_authenticated %}
             <div class="nav-item dropdown profile-dropdown">
                 <a class="nav-link d-flex align-items-center py-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -77,9 +96,10 @@
                     </div>
                 </ul>
             </div>
+            
         {% else %}
             <a class="btn btn-link text-white text-decoration-none fw-bold" href="/login">LOGOWANIE</a>
-            <a class="btn btn-outline-light px-4 rounded-pill fw-bold" href="/register">DOŁĄCZ</a>
+            <a class="btn btn-outline-light px-4 rounded fw-bold" href="/register">DOŁĄCZ</a>
         {% endif %}
       </div>
 
@@ -88,28 +108,60 @@
 </nav>
 
 <style>
-    /* --- OGÓLNE STYLE NAWIGACJI --- */
+    /* Podstawa linków */
     .custom-nav .nav-link { 
         position: relative; 
         padding-bottom: 8px; 
         transition: 0.3s; 
     }
 
+    /* Niebieska linia pod linkami */
     .custom-nav .nav-link::after {
         content: '' !important;
         position: absolute; 
-        width: 0; height: 3px; bottom: 0; left: 0;
+        width: 0; 
+        height: 3px; 
+        bottom: 0; 
+        left: 0;
         background-color: #0dcaf0; 
         transition: width 0.3s ease;
-        border-radius: 2px; 
+        border-radius: 2px;
         display: block !important; 
         border: none !important;
     }
 
-    .custom-nav .nav-link:hover::after { width: 100%; }
-    .custom-nav .nav-link:hover { color: #fff !important; transform: translateY(-2px); }
+    .custom-nav .nav-link:hover::after { 
+        width: 100%; 
+    }
 
-    /* --- CZYSTY I SMUKŁY DROPDOWN PROFILU --- */
+    .custom-nav .nav-link:hover { 
+        color: #fff !important; 
+        transform: translateY(-2px); 
+    }
+
+    /* Styl rozwijanego menu (Dropdown) */
+    .dropdown-menu-dark { 
+        background-color: #212529; 
+        border-radius: 10px; 
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .dropdown-item:hover { 
+        background-color: #343a40; 
+        color: #0dcaf0 !important; 
+        padding-left: 25px; 
+    }
+
+    /* Logo i Przyciski */
+    .logo-hover { transition: 0.3s; }
+    .logo-hover:hover { transform: scale(1.03); }
+
+    .btn-outline-light:hover { 
+        background: #fff; 
+        color: #212529 !important; 
+    }
+
+    /* Menu profilu */
     .profile-dropdown .dropdown-menu {
         right: 0 !important;
         left: auto !important;
@@ -119,16 +171,17 @@
         padding: 0;
         overflow: hidden;
         margin-top: 10px !important;
-        border: 1px solid #0dcaf0 !important; /* Stała, elegancka ramka */
+        border: 1px solid #0dcaf0 !important;
         box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
     }
 
-    /* HOVER I MOST DLA MYSZKI */
+    /* Pokazanie po hoverze */
     @media (min-width: 992px) {
         .profile-dropdown:hover .dropdown-menu {
             display: block;
             margin-top: 0;
         }
+        /* Most zapobiegający uciekaniu myszki */
         .profile-dropdown::before {
             content: ''; 
             position: absolute; 
@@ -140,7 +193,7 @@
         }
     }
 
-    /* NAGŁÓWEK BOXA */
+    /* Dekoracja góry menu profilu */
     .dropdown-header-custom {
         background: #212529;
         padding: 15px 10px;
@@ -163,7 +216,7 @@
         word-break: break-all;
     }
 
-    /* ELEMENTY LISTY */
+    /* Elementy listy w profilu i podświetlenie */
     .profile-dropdown .dropdown-item {
         padding: 10px 15px;
         color: #f8f9fa !important;
@@ -182,18 +235,13 @@
         padding-left: 22px;
     }
 
-    /* SEKACJA WYLOGOWANIA */
+    /* Strefa przycisku wylogowania */
     .logout-wrapper {
         padding: 12px;
         background: #15181b;
     }
 
-    /* ANIMACJA AWATARA */
+    /* Animacja powiększania awatara */
     .avatar-wrapper { transition: 0.3s; }
     .profile-dropdown:hover .avatar-wrapper { transform: scale(1.1); }
-
-    /* LOGO I PRZYCISKI */
-    .logo-hover { transition: 0.3s; }
-    .logo-hover:hover { transform: scale(1.03); }
-    .btn-outline-light:hover { background: #fff; color: #212529 !important; }
 </style>
