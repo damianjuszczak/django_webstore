@@ -11,16 +11,19 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
+import dotenv
+
+dotenv.load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jnscosjmvqy4^59lzts0s_yct#b8@9_ex)%08%6v_%ek#hm3ry'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True #show errors during program usage
@@ -38,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
 
     # custom apps
     'main',
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [ # now default, used for verification/modification processing data from requests
     'django.middleware.security.SecurityMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,6 +59,10 @@ MIDDLEWARE = [ # now default, used for verification/modification processing data
 ]
 
 ROOT_URLCONF = 'webapp.urls' 
+
+# INTERNAL_IPS = [
+#     "127.0.0.1",
+# ]
 
 TEMPLATES = [
     {
@@ -66,7 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-
+                'main.context_processors.currency_context',
                 'main.context_processors.cart',
             ],
         },
@@ -79,13 +88,19 @@ WSGI_APPLICATION = 'webapp.wsgi.application' #created as an implementation-neutr
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+        conn_max_age=300  # keeps connection open for 5 min
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -117,6 +132,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+DEFAULT_CURRENCY = 'PLN'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

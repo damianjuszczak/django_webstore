@@ -1,5 +1,7 @@
 {% extends 'main/layout/layout.html' %}
 
+{% load currency_tags %}
+
 {% block title %}Twój koszyk{% endblock %}
 
 {% block content %}
@@ -27,8 +29,8 @@
                         
                         <a href="{% url 'cart_add' item.product.id %}" class="btn btn-sm btn-outline-secondary fw-bold">+</a>
                     </td>
-                    <td>{{ item.product.price }} PLN</td>
-                    <td>{{ item.total_price }} PLN</td>
+                    <td>{% convert_price item.product.price %}</td>
+                    <td>{% convert_price item.total_price %}</td>
                     <td>
                         <a href="{% url 'cart_remove' item.product.id %}" class="btn btn-danger btn-sm">Usuń</a>
                     </td>
@@ -38,9 +40,9 @@
         </table>
         
         <div class="text-end mt-4">
-            <h3>Suma całkowita: {{ cart.get_total_price }} PLN</h3>
+            <h3>Suma całkowita: {% convert_price cart.get_total_price %}</h3>
             <a href="{% url 'home' %}" class="btn btn-outline-secondary">Kontynuuj zakupy</a>
-            <a href="{% url 'checkout' %}" class="btn btn-success">Zamawiam i płacę</a>
+            <a href="{% url 'order_create' %}" class="btn btn-success">Zamawiam i płacę</a>
         </div>
 
     {% else %}

@@ -3,6 +3,7 @@
 {% block title %}Profil > Konto{% endblock %}
 
 {% block profile_content %}
+    {% csrf_token %}
     <div class="profile-card shadow-sm p-4 position-relative">
         <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
             <span class="mb-0">Profil</span>
@@ -13,23 +14,28 @@
             <span class="btn btn-success d-flex align-items-center justify-content-center confirm-profile-data-js d-none">
                 <i class="fa-solid fa-check"></i>
             </span>
+            <span class="btn btn-outline-secondary d-flex align-items-center justify-content-center data-lodaing-spinner-js d-none">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </span>
         </h3>
         <p class="text-muted">Informacje o twoim koncie</p>
         <hr class="mb-4">
 
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Użytkownik</div>
-            <div class="col-sm-8 fw-semibold"><span>{{ user.username }}</span></div>
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="text">
+                <span>{{ user.username }}</span>
+            </div>
         </div>
 
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Numer telefonu</div>
-            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="field-phone">
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="tel" data-oldValue='{{ user.profile.phone }}' data-inputName="phone">
                 <span class="field-value-js">
-                    {{ user.profile.phone|default:"" }}
+                    {{ user.profile.phone }}
                 </span>
                 {% if not user.profile.phone %}
-                <span class="badge bg-warning text-dark">
+                <span class="badge bg-warning text-dark badge-visibility-js">
                     <i class="fa-solid fa-triangle-exclamation me-1"></i>
                     Niekompletne dane
                 </span>
@@ -39,12 +45,12 @@
 
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Email</div>
-            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="email" data-oldValue="{{ user.email }}" data-inputName="email">
                 <span class="field-value-js">
                     {{ user.email }}
                 </span>
                 {% if not user.email %}
-                <span class="badge bg-warning text-dark">
+                <span class="badge bg-warning text-dark badge-visibility-js">
                     <i class="fa-solid fa-triangle-exclamation me-1"></i>
                     Niekompletne dane
                 </span>
@@ -57,12 +63,12 @@
 
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Adres</div>
-            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="text" data-oldValue="{{ user.profile.address }}" data-inputName="address">
                 <span class="field-value-js">
                     {{ user.profile.address }}
                 </span>
-                {% if not user.profile.address or not user.profile.city%}
-                <span class="badge bg-warning text-dark">
+                {% if not user.profile.address %}
+                <span class="badge bg-warning text-dark badge-visibility-js">
                     <i class="fa-solid fa-triangle-exclamation me-1"></i>
                     Niekompletne dane
                 </span>
@@ -70,15 +76,28 @@
                 {% endif %}
             </div>
         </div>
-
+        <div class="row data-row align-items-center">
+            <div class="col-sm-4 text-muted">Kod pocztowy</div>
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="text" data-oldValue="{{ user.profile.zip_code }}" data-inputName="zip_code">
+                <span class="field-value-js">
+                    {{ user.profile.zip_code }}
+                </span>
+                {% if not user.profile.zip_code %}
+                <span class="badge bg-warning text-dark badge-visibility-js">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                    Niekompletne dane
+                </span>
+                {% endif %}
+            </div>
+        </div>
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Miasto</div>
-            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="text" data-oldValue="{{ user.profile.city }}" data-inputName="city">
                 <span class="field-value-js">
-                    {{ user.profile.zip_code }} {{ user.profile.city }}
+                    {{ user.profile.city }}
                 </span>
-                {% if not user.profile.zip_code or not user.profile.city%}
-                <span class="badge bg-warning text-dark">
+                {% if not user.profile.city %}
+                <span class="badge bg-warning text-dark badge-visibility-js">
                     <i class="fa-solid fa-triangle-exclamation me-1"></i>
                     Niekompletne dane
                 </span>
@@ -88,12 +107,12 @@
 
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Kraj</div>
-            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="email" data-oldValue="{{ user.profile.country }}" data-inputName="country">
                 <span class="field-value-js">
                     {{ user.profile.country }}
                 </span>
                 {% if not user.profile.country %}
-                <span class="badge bg-warning text-dark">
+                <span class="badge bg-warning text-dark badge-visibility-js">
                     <i class="fa-solid fa-triangle-exclamation me-1"></i>
                     Niekompletne dane
                 </span>
@@ -103,7 +122,7 @@
         <hr>
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Newsletter</div>
-            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="email">
                 {% if user.profile.newsletter %}
                 <span class="badge bg-success">Aktywny</span>
                 {% else %}
@@ -114,9 +133,8 @@
 
         <div class="row data-row align-items-center">
             <div class="col-sm-4 text-muted">Usuwanie konta</div>
-            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1">
+            <div class="col-sm-8 fw-semibold d-inline-flex align-items-center gap-1 edit-field-js" data-field="email">
                 <form method="post" action="{% url 'profile_delete' %}">
-                    {% csrf_token %}
                     <span id="delete-account-js" class="badge bg-warning text-dark">
                         <i class="fa-solid fa-x me-1"></i>
                         Usuń moje konto

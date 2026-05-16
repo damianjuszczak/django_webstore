@@ -1,5 +1,7 @@
 {% extends 'main/layout/layout.html' %}
 
+{% load currency_tags %}
+
 {% block title %}{{ product.name }} | Django Store{% endblock %}
 
 {% block breadcrumbs %}
@@ -15,20 +17,32 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6 mb-4">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            {% if product.images.all %}
-                {% for img in product.images.all %}
-                    {% if img.main_photo %}
-                        <img src="{{ img.image.url }}" class="img-fluid w-100" alt="{{ img.alt_text }}">
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                    <span class="text-muted">Brak zdjęcia</span>
-                </div>
-            {% endif %}
-        </div>
+    
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
+        {% if product.images.all %}
+            <img id="mainPhoto" src="{{ product.images.first.image.url }}" class="img-fluid w-100" alt="Produkt">
+        {% else %}
+            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                <span class="text-muted">Brak zdjęcia</span>
+            </div>
+        {% endif %}
     </div>
+
+    {% if product.images.all|length > 1 %}
+    <div class="row g-2">
+        {% for img in product.images.all %}
+            <div class="col-4">
+                <img src="{{ img.image.url }}" 
+                     onclick="document.getElementById('mainPhoto').src=this.src"
+                     class="img-fluid rounded-3 shadow-sm w-100" 
+                     style="cursor: pointer; aspect-ratio: 1/1; object-fit: cover;" 
+                     alt="Miniaturka">
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
 
     <div class="col-md-6">
         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1 mb-2">
@@ -36,7 +50,7 @@
         </span>
         
         <h1 class="fw-bold mb-3">{{ product.name }}</h1>
-        <h2 class="text-primary fw-bold mb-4">{{ product.price }} PLN</h2>
+        <h2 class="text-primary fw-bold mb-4">{% convert_price product.price %}</h2>
         
         <p class="lead">{{ product.description }}</p>
         
@@ -61,7 +75,7 @@
 
         <form action="{% url 'cart_add' product.id %}" method="post" class="mt-4">
             {% csrf_token %}
-            <button type="submit" class="btn btn-dark btn-lg rounded-pill px-5" {% if product.stock <= 0 %}disabled{% endif %}>
+            <button type="submit" class="btn btn-dark btn-lg rounded px-5" {% if product.stock <= 0 %}disabled{% endif %}>
                 <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do koszyka
             </button>
         </form>
