@@ -60,6 +60,23 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse('product_details', kwargs={'slug': self.slug})
+    
+    def save(self, *args, **kwargs):
+        if self.technical_specs and isinstance(self.technical_specs, dict):
+            
+            if not self.ram:
+                self.ram = self.technical_specs.get('Pamięć RAM') or self.technical_specs.get('RAM') or self.technical_specs.get('ram')
+                
+            if not self.cpu:
+                self.cpu = self.technical_specs.get('Procesor (CPU)') or self.technical_specs.get('CPU') or self.technical_specs.get('cpu')
+                
+            if not self.gpu:
+                self.gpu = self.technical_specs.get('Karta Graficzna (GPU)') or self.technical_specs.get('GPU') or self.technical_specs.get('gpu')
+                
+            if not self.screen:
+                self.screen = self.technical_specs.get('Ekran') or self.technical_specs.get('Przekątna ekranu')
+                
+        super().save(*args, **kwargs)
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
