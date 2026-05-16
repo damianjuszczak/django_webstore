@@ -59,7 +59,6 @@
                 {% endfor %}
             </select>
         </form>
-<<<<<<< HEAD
 
         {% if request.user.is_authenticated %}
             <div class="nav-item dropdown profile-dropdown">
@@ -82,25 +81,13 @@
                         <small class="user-email">{{ request.user.email|default:"Brak e-maila" }}</small>
                     </div>
                     
-                    <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fa-solid fa-user-circle me-2"></i>Mój Profil</a></li>
+                    <li><a class="dropdown-item" href="{% url 'profile_info' %}"><i class="fa-solid fa-user-circle me-2"></i>Mój Profil</a></li>
                     <li><a class="dropdown-item" href="#"><i class="fa-solid fa-receipt me-2"></i>Moje Zamówienia</a></li>
                     <li><a class="dropdown-item" href="#"><i class="fa-solid fa-heart me-2"></i>Lista życzeń</a></li>
                     <li><a class="dropdown-item" href="#"><i class="fa-solid fa-headset me-2"></i>Pomoc i Wsparcie</a></li>
                     
                     <div class="logout-wrapper mt-2">
                         <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
-=======
-        {% if request.user.is_authenticated %}
-            <div class="dropdown">
-                <a href="#" class="btn btn-outline-light rounded px-4 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-user me-2"></i>{{ request.user.username }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow dropdown-menu-dark mt-2 border-0">
-                    <li><a class="dropdown-item py-2" href="{% url 'profile_info' %}">Profil użytkownika</a></li>
-                    <li><hr class="dropdown-divider border-secondary"></li>
-                    <li>
-                        <form method="POST" action="{% url 'logout_user' %}" class="logout-form m-0 p-0">
->>>>>>> 75c6de3b71f7421ee0e9fbc5510676a6ba983eea
                             {% csrf_token %}
                             <button class="btn btn-outline-danger btn-sm w-100 fw-bold" type="submit">
                                 <i class="fa-solid fa-power-off me-2"></i>Wyloguj się
