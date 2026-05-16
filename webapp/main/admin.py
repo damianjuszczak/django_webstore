@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Manufacturer, Product, ProductImage, Order, OrderItem
+from .models import Category, Manufacturer, Product, ProductImage, Order, OrderItem,ContactMessage
 
 admin.site.register(Category)
 admin.site.register(Manufacturer)
@@ -19,3 +19,7 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['id', 'order', 'product', 'price', 'quantity']
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('email', 'title', 'created_at')

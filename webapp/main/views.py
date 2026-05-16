@@ -1,5 +1,4 @@
-
-from .models import Product, Profile, Category, Order, OrderItem
+from .models import Product, Profile, Category, Order, OrderItem, ContactMessage
 from .cart import Cart
 from .contact import ContactForm
 
@@ -17,17 +16,27 @@ from main.utilities import get_live_exchange_rates
 
 
 def index(request):
-    products = Product.objects.select_related('manufacturer').prefetch_related('images').filter(is_available=True).order_by('?')[:4]
-    return render(request, 'main/index.html', {'products': products})
+    products = (
+        Product.objects.select_related("manufacturer")
+        .prefetch_related("images")
+        .filter(is_available=True)
+        .order_by("?")[:4]
+    )
+    return render(request, "main/index.html", {"products": products})
+
 
 def contact(request):
-    # Jeśli formularz został wysłany
     if request.method == "POST":
         form = ContactForm(request.POST)
 
         if form.is_valid():
+            ContactMessage.objects.create(
+                email=form.cleaned_data["email"],
+                title=form.cleaned_data["title"],
+                message=form.cleaned_data["message"],
+            )
             messages.success(
-                request, "Dziękujemy za kontakt! Twoja wiadomość została wysłana."
+                request, "Dziękujemy za kontakt! Twoja wiadomość została zapisana."
             )
             return redirect("contact")
 
@@ -77,8 +86,10 @@ def cart(request):
     cart = Cart(request)
     return render(request, "main/cart.html", {"cart": cart})
 
+
 def about(request):
     return render(request, "main/about.html")
+
 
 def search(request):
     query = request.GET.get("q", "")
@@ -97,25 +108,31 @@ def search(request):
 
 def category_details(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
-    
-    products = Product.objects.select_related('manufacturer').prefetch_related('images').filter(category=category, is_available=True)
 
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
-    
-    currency = request.session.get('currency', getattr(settings, 'DEFAULT_CURRENCY', 'PLN'))
+    products = (
+        Product.objects.select_related("manufacturer")
+        .prefetch_related("images")
+        .filter(category=category, is_available=True)
+    )
+
+    min_price = request.GET.get("min_price")
+    max_price = request.GET.get("max_price")
+
+    currency = request.session.get(
+        "currency", getattr(settings, "DEFAULT_CURRENCY", "PLN")
+    )
     live_rates = get_live_exchange_rates()
     rate = live_rates.get(currency, 1.0)
-    ram = request.GET.get('ram')
-    cpu = request.GET.get('cpu')
+    ram = request.GET.get("ram")
+    cpu = request.GET.get("cpu")
 
     try:
         if min_price:
-            #convert user curreny choice to the one in database
+            # convert user curreny choice to the one in database
             converted_min = float(min_price) / float(rate)
             products = products.filter(price__gte=converted_min)
         if max_price:
-            #convert user curreny choice to the one in database
+            # convert user curreny choice to the one in database
             converted_max = float(max_price) / float(rate)
             products = products.filter(price__lte=converted_max)
     except ValueError:
@@ -123,7 +140,7 @@ def category_details(request, category_slug):
 
     if ram:
         products = products.filter(ram__icontains=ram)
-        
+
     if cpu:
         products = products.filter(cpu__icontains=cpu)
 
@@ -132,32 +149,38 @@ def category_details(request, category_slug):
         "products": products,
         "min_price": min_price,
         "max_price": max_price,
-        "ram": ram, 
-        "cpu": cpu
+        "ram": ram,
+        "cpu": cpu,
     }
 
     return render(request, "main/category.html", context)
+
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
     return render(request, "main/product_details.html", {"product": product})
 
+
 def change_currency(request):
-    if request.method == 'POST':
-        currency = request.POST.get('currency', 'PLN')
-        
-        allowed_currencies = ['PLN', 'EUR', 'USD']
-        
+    if request.method == "POST":
+        currency = request.POST.get("currency", "PLN")
+
+        allowed_currencies = ["PLN", "EUR", "USD"]
+
         if currency in allowed_currencies:
-            request.session['currency'] = currency #save to user session
-            
-    next_url = request.POST.get('next', '/') #redirect back to the same page
+            request.session["currency"] = currency  # save to user session
+
+    next_url = request.POST.get("next", "/")  # redirect back to the same page
     return redirect(next_url)
+
 
 def login_form(request):
     return render(request, "main/account/login.html")
+
+
 def register_form(request):
     return render(request, "main/account/register.html")
+
 
 @require_POST
 def auth_login(request):
@@ -175,12 +198,17 @@ def auth_login(request):
         messages.success(request, "Pomyślnie zalogowano.")
         return JsonResponse({"status": "success", "redirect_url": "/profile/"})
     else:
-        return JsonResponse({"status": "error", "message": "Błędne dane logowania"}, status=401)
+        return JsonResponse(
+            {"status": "error", "message": "Błędne dane logowania"}, status=401
+        )
+
 
 @require_POST
 def auth_register(request):
     if request.user.is_authenticated:
-        messages.error(request, "Wyloguj się i spróbuje ponownie zarejestrować nowe konto.")
+        messages.error(
+            request, "Wyloguj się i spróbuje ponownie zarejestrować nowe konto."
+        )
         return JsonResponse({"status": "success", "redirect_url": "/"})
 
     try:
@@ -193,23 +221,29 @@ def auth_register(request):
         )
 
         profile, created = Profile.objects.get_or_create(user=user)
-        
-        profile.phone = request.POST.get('phone', '')
-        profile.address = request.POST.get('address', '') 
-        profile.city = request.POST.get('city', '')
-        profile.zip_code = request.POST.get('zip_code', '')
-        profile.country = request.POST.get('country', 'Polska')
-        
+
+        profile.phone = request.POST.get("phone", "")
+        profile.address = request.POST.get("address", "")
+        profile.city = request.POST.get("city", "")
+        profile.zip_code = request.POST.get("zip_code", "")
+        profile.country = request.POST.get("country", "Polska")
+
         profile.save()
 
         login(request, user)
         messages.success(request, "Twoje konto zostało pomyślnie utworzone.")
         return JsonResponse({"status": "success", "redirect_url": "/profile/"})
     except IntegrityError:
-        return JsonResponse({"status": "error", "message": "Ten login jest już zajęty."}, status=400)
+        return JsonResponse(
+            {"status": "error", "message": "Ten login jest już zajęty."}, status=400
+        )
     except Exception:
-        return JsonResponse({"status": "error", "message": "Coś poszło nie tak podczas rejestracji."}, status=500)
-    
+        return JsonResponse(
+            {"status": "error", "message": "Coś poszło nie tak podczas rejestracji."},
+            status=500,
+        )
+
+
 @require_POST
 def auth_logout(request):
     if request.user.is_authenticated:
@@ -217,6 +251,7 @@ def auth_logout(request):
         messages.success(request, "Pomyślnie wylogowano.")
         return JsonResponse({"status": "success", "redirect_url": "/"})
     return JsonResponse({"status": "success", "redirect_url": "/"})
+
 
 @login_required
 @require_POST
@@ -233,44 +268,51 @@ def profile_change_info(request):
             user.profile.city = data.get("city", user.profile.city)
             user.profile.save()
             user.save()
-        return JsonResponse({
-            "status": "success",
-            "message": "Dane zostały zaktualizowane."
-        })
+        return JsonResponse(
+            {"status": "success", "message": "Dane zostały zaktualizowane."}
+        )
 
     except Profile.DoesNotExist:
-        return JsonResponse({"status": "error", "message": "Profil nie istnieje."}, status=404)
+        return JsonResponse(
+            {"status": "error", "message": "Profil nie istnieje."}, status=404
+        )
     except Exception as e:
         messages.error(request, "Coś poszło nie tak, spróbuj ponownie.")
         import traceback
+
         print(traceback.format_exc())
-        return JsonResponse({
-            "status": "error",
-            "redirect_url": "/profile/"
-        }, status=500)
+        return JsonResponse(
+            {"status": "error", "redirect_url": "/profile/"}, status=500
+        )
+
 
 @login_required
 def profile_info(request):
-    return render(request, "main/account/profile_info.html", {
-        'user': request.user,
-        "active_tab": "info"
-    })
+    return render(
+        request,
+        "main/account/profile_info.html",
+        {"user": request.user, "active_tab": "info"},
+    )
+
 
 @login_required
 def profile_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related("items__product")
-    return render(request, "main/account/profile_orders.html", {
-        "user": request.user, 
-        "orders": orders,
-        "active_tab": "orders"
-    })
-            
+    return render(
+        request,
+        "main/account/profile_orders.html",
+        {"user": request.user, "orders": orders, "active_tab": "orders"},
+    )
+
+
 @login_required
 def profile_reports(request):
-    return render(request, "main/account/profile_reports.html", {
-        "user": request.user,
-        "active_tab": "reports"
-    })
+    return render(
+        request,
+        "main/account/profile_reports.html",
+        {"user": request.user, "active_tab": "reports"},
+    )
+
 
 @login_required
 @require_POST
@@ -278,40 +320,36 @@ def profile_delete(request):
     try:
         user = request.user
         user.delete()
-        return JsonResponse({
-            "status": "success",
-            "redirect_url": "/"
-        }, status=200)
-    
+        return JsonResponse({"status": "success", "redirect_url": "/"}, status=200)
+
     except Exception:
-        messages.error(request, "Wystąpił nieoczekiwany błąd. Nie udało się usunąć konta.")
-        return JsonResponse({
-            "status": "error",
-            "message": "Nie udało się usunąc konta."
-        }, status=500)
+        messages.error(
+            request, "Wystąpił nieoczekiwany błąd. Nie udało się usunąć konta."
+        )
+        return JsonResponse(
+            {"status": "error", "message": "Nie udało się usunąc konta."}, status=500
+        )
+
 
 def process_order_items(order, items_list, request):
     items_added = 0
     for item in items_list:
-        product = item['product']
-        quantity = item['quantity']
-        
-        updated = Product.objects.filter(
-            id=product.id, 
-            stock__gte=quantity
-        ).update(stock=F('stock') - quantity)
+        product = item["product"]
+        quantity = item["quantity"]
+
+        updated = Product.objects.filter(id=product.id, stock__gte=quantity).update(
+            stock=F("stock") - quantity
+        )
 
         if updated:
             OrderItem.objects.create(
-                order=order,
-                product=product,
-                price=product.price,
-                quantity=quantity
+                order=order, product=product, price=product.price, quantity=quantity
             )
             items_added += 1
         else:
             messages.warning(request, f"Produkt {product.name} jest niedostępny.")
     return items_added
+
 
 @login_required
 @transaction.atomic
@@ -319,8 +357,8 @@ def order_create(request):
     cart = Cart(request)
     if len(cart) == 0:
         messages.error(request, "Twój koszyk jest pusty.")
-        return redirect('cart_view')
-    
+        return redirect("cart_view")
+
     order = Order.objects.create(
         user=request.user,
         first_name=request.user.first_name,
@@ -330,43 +368,48 @@ def order_create(request):
         address=request.user.profile.address,
         city=request.user.profile.city,
         zip_code=request.user.profile.zip_code,
-        country=request.user.profile.country
+        country=request.user.profile.country,
     )
 
-    items_to_add = [{'product': item['product'], 'quantity': item['quantity']} for item in cart]
+    items_to_add = [
+        {"product": item["product"], "quantity": item["quantity"]} for item in cart
+    ]
     added_count = process_order_items(order, items_to_add, request)
 
-    referer_url = request.META.get('HTTP_REFERER', '')
+    referer_url = request.META.get("HTTP_REFERER", "")
     if added_count > 0:
-        request.session['cart'] = {}
+        request.session["cart"] = {}
         request.session.modified = True
 
-        if '/profile/orders' in referer_url:
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Zamówienie zostało złożone.',
-            }, status=200)
-        
+        if "/profile/orders" in referer_url:
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "message": "Zamówienie zostało złożone.",
+                },
+                status=200,
+            )
+
         else:
             messages.success(request, "Zamówienie zostało złożone.")
-            return redirect('profile_orders')
-            
+            return redirect("profile_orders")
+
     else:
         transaction.set_rollback(True)
-        if '/profile/orders' in referer_url:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Brak produktów na stanie.'
-            }, status=400)
+        if "/profile/orders" in referer_url:
+            return JsonResponse(
+                {"status": "error", "message": "Brak produktów na stanie."}, status=400
+            )
         else:
             messages.error(request, "Brak produktów na stanie.")
-            return redirect('profile_orders')
+            return redirect("profile_orders")
+
 
 @login_required
 @transaction.atomic
 def order_renew(request, order_id):
     old_order = get_object_or_404(Order, id=order_id, user=request.user)
-    
+
     p = request.user.profile
     new_order = Order.objects.create(
         user=request.user,
@@ -377,54 +420,60 @@ def order_renew(request, order_id):
         address=request.user.profile.address,
         city=request.user.profile.city,
         zip_code=request.user.profile.zip_code,
-        country=request.user.profile.country
+        country=request.user.profile.country,
     )
 
     items_to_add = [
-        {'product': item.product, 'quantity': item.quantity} 
-        for item in old_order.items.all() 
+        {"product": item.product, "quantity": item.quantity}
+        for item in old_order.items.all()
         if item.product.is_available
     ]
 
     added_count = process_order_items(new_order, items_to_add, request)
 
-    referer_url = request.META.get('HTTP_REFERER', '')
+    referer_url = request.META.get("HTTP_REFERER", "")
     if added_count > 0:
-        if '/profile/orders' in referer_url:
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Zamówienie zostało złożone.',
-            }, status=200)
-        
+        if "/profile/orders" in referer_url:
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "message": "Zamówienie zostało złożone.",
+                },
+                status=200,
+            )
+
         else:
             messages.success(request, "Zamówienie zostało złożone.")
-            return redirect('profile_orders')
-            
+            return redirect("profile_orders")
+
     else:
         transaction.set_rollback(True)
-        if '/profile/orders' in referer_url:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Brak produktów na stanie.'
-            }, status=400)
+        if "/profile/orders" in referer_url:
+            return JsonResponse(
+                {"status": "error", "message": "Brak produktów na stanie."}, status=400
+            )
         else:
             messages.error(request, "Brak produktów na stanie.")
-            return redirect('profile_orders')
+            return redirect("profile_orders")
+
 
 @login_required
 @require_POST
 def order_cancel(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    if order.status in ['new', 'processing']:
-        order.status = 'cancelled'
+    if order.status in ["new", "processing"]:
+        order.status = "cancelled"
         order.save()
 
-        return JsonResponse({
-            'status': 'success',
-            'message': 'Zamówienie zostało anulowane.'
-        }, status=200)
+        return JsonResponse(
+            {"status": "success", "message": "Zamówienie zostało anulowane."},
+            status=200,
+        )
     else:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Nie można anulować zamówienia, które zostało już wysłane lub zrealizowane.'
-        }, status=400)
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "Nie można anulować zamówienia, które zostało już wysłane lub zrealizowane.",
+            },
+            status=400,
+        )
