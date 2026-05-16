@@ -106,6 +106,8 @@ def category_details(request, category_slug):
     currency = request.session.get('currency', getattr(settings, 'DEFAULT_CURRENCY', 'PLN'))
     live_rates = get_live_exchange_rates()
     rate = live_rates.get(currency, 1.0)
+    ram = request.GET.get('ram')
+    cpu = request.GET.get('cpu')
 
     try:
         if min_price:
@@ -119,11 +121,19 @@ def category_details(request, category_slug):
     except ValueError:
         pass
 
+    if ram:
+        products = products.filter(ram__icontains=ram)
+        
+    if cpu:
+        products = products.filter(cpu__icontains=cpu)
+
     context = {
         "category": category,
         "products": products,
         "min_price": min_price,
-        "max_price": max_price
+        "max_price": max_price,
+        "ram": ram, 
+        "cpu": cpu
     }
 
     return render(request, "main/category.html", context)
