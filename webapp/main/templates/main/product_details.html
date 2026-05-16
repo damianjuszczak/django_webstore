@@ -1,5 +1,7 @@
 {% extends 'main/layout/layout.html' %}
 
+{% load currency_tags %}
+
 {% block title %}{{ product.name }} | Django Store{% endblock %}
 
 {% block breadcrumbs %}
@@ -48,7 +50,7 @@
         </span>
         
         <h1 class="fw-bold mb-3">{{ product.name }}</h1>
-        <h2 class="text-primary fw-bold mb-4">{{ product.price }} PLN</h2>
+        <h2 class="text-primary fw-bold mb-4">{% convert_price product.price %}</h2>
         
         <p class="lead">{{ product.description }}</p>
         

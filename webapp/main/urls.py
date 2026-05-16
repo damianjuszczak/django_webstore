@@ -35,5 +35,9 @@ urlpatterns = [
     # Checkout URLs
     path('api/order/create', views.order_create, name='order_create'),
     path('api/order/renew/<int:order_id>/', views.order_renew, name='order_renew'),
-    path('api/order/cancel/<int:order_id>/', views.order_cancel, name='order_cancel')
+    path('api/order/cancel/<int:order_id>/', views.order_cancel, name='order_cancel'),
+
+    # Currency switcher
+    path('change-currency/', views.change_currency, name='change_currency')
+    
 ]

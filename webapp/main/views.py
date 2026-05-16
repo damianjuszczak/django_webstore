@@ -4,7 +4,7 @@ from .cart import Cart
 from .contact import ContactForm
 
 from django.http import JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.db.models import Q, F
 from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
+from django.conf import settings
+from main.utilities import get_live_exchange_rates
 
 
 def index(request):
@@ -100,13 +102,24 @@ def category_details(request, category_slug):
 
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
+    
+    currency = request.session.get('currency', getattr(settings, 'DEFAULT_CURRENCY', 'PLN'))
+    live_rates = get_live_exchange_rates()
+    rate = live_rates.get(currency, 1.0)
     ram = request.GET.get('ram')
     cpu = request.GET.get('cpu')
 
-    if min_price:
-        products = products.filter(price__gte=min_price)
-    if max_price:
-        products = products.filter(price__lte=max_price)
+    try:
+        if min_price:
+            #convert user curreny choice to the one in database
+            converted_min = float(min_price) / float(rate)
+            products = products.filter(price__gte=converted_min)
+        if max_price:
+            #convert user curreny choice to the one in database
+            converted_max = float(max_price) / float(rate)
+            products = products.filter(price__lte=converted_max)
+    except ValueError:
+        pass
 
     if ram:
         products = products.filter(ram__icontains=ram)
@@ -128,6 +141,18 @@ def category_details(request, category_slug):
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
     return render(request, "main/product_details.html", {"product": product})
+
+def change_currency(request):
+    if request.method == 'POST':
+        currency = request.POST.get('currency', 'PLN')
+        
+        allowed_currencies = ['PLN', 'EUR', 'USD']
+        
+        if currency in allowed_currencies:
+            request.session['currency'] = currency #save to user session
+            
+    next_url = request.POST.get('next', '/') #redirect back to the same page
+    return redirect(next_url)
 
 def login_form(request):
     return render(request, "main/account/login.html")
