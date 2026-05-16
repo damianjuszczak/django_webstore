@@ -67,9 +67,9 @@
                     
                     <div class="avatar-wrapper">
                         {% if request.user.profile.avatar %}
-                            <img src="{{ request.user.profile.avatar.url }}" class="rounded-circle border border-2 border-info shadow-sm" style="width: 42px; height: 42px; object-fit: cover;">
+                            <img src="{{ request.user.profile.avatar.url }}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 35px; height: 35px; object-fit: cover;">
                         {% else %}
-                            <img src="{% static 'main/img/default_avatar.png' %}" class="rounded-circle border border-2 border-info shadow-sm" style="width: 42px; height: 42px; object-fit: cover;">
+                            <img src="{% static 'main/img/profile_placeholder.png' %}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 35px; height: 35px; filter: invert(1)">
                         {% endif %}
                     </div>
                 </a>
@@ -82,9 +82,9 @@
                     </div>
                     
                     <li><a class="dropdown-item" href="{% url 'profile_info' %}"><i class="fa-solid fa-user-circle me-2"></i>Mój Profil</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-receipt me-2"></i>Moje Zamówienia</a></li>
+                    <li><a class="dropdown-item" href="{% url 'profile_orders' %}"><i class="fa-solid fa-receipt me-2"></i>Moje Zamówienia</a></li>
                     <li><a class="dropdown-item" href="#"><i class="fa-solid fa-heart me-2"></i>Lista życzeń</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-headset me-2"></i>Pomoc i Wsparcie</a></li>
+                    <li><a class="dropdown-item" href="{% url 'contact' %}"><i class="fa-solid fa-headset me-2"></i>Pomoc i Wsparcie</a></li>
                     
                     <div class="logout-wrapper mt-2">
                         <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
