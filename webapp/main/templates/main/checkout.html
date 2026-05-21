@@ -1,0 +1,98 @@
+{% extends 'main/layout/layout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Podsumowanie zamówienia</h2>
+    
+    <div class="row">
+        <div class="col-md-7">
+            <form method="POST" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                
+                <h4>Dane do wysyłki</h4>
+                <div class="mb-3">
+                    <label>Imię</label>
+                    <input type="text" name="first_name" class="form-control" value="{{ data.first_name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Nazwisko</label>
+                    <input type="text" name="last_name" class="form-control" value="{{ data.last_name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Telefon</label>
+                    <input type="text" name="phone" class="form-control" value="{{ data.phone }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Ulica i numer domu</label>
+                    <input type="text" name="address" class="form-control" value="{{ data.address }}" required>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Miasto</label>
+                        <input type="text" name="city" class="form-control" value="{{ data.city }}" required>
+                    </div>
+                    <div class="col">
+                        <label>Kod pocztowy</label>
+                        <input type="text" name="zip_code" class="form-control" value="{{ data.zip_code }}" required>
+                    </div>
+                </div>
+
+                <hr>
+                <h4>Metoda dostawy</h4>
+                <select name="delivery_method" id="delivery_method" class="form-select mb-3" onchange="toggleInpostMap()">
+                    <option value="courier">Kurier do domu</option>
+                    <option value="inpost">Paczkomat InPost</option>
+                </select>
+
+                <input type="hidden" name="pickup_point_id" id="pickup_point_id">
+                <p id="selected-paczkomat-info" class="text-success fw-bold"></p>
+
+                <div id="inpost-map-container" style="display: none; height: 500px; margin-bottom: 20px;">
+                    <inpost-geowidget></inpost-geowidget>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">Potwierdź i kup</button>
+            </form>
+        </div>
+
+        <div class="col-md-5">
+            <h4>Twój koszyk</h4>
+            <ul class="list-group">
+                {% for item in cart %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ item.product.name }} (x{{ item.quantity }})</span>
+                        <span>{{ item.total_price }} zł</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <h5 class="mt-3 text-end">Suma: {{ cart.get_total_price }} zł</h5>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://geowidget.inpost.pl/inpost-geowidget.css"/>
+<script src="https://geowidget.inpost.pl/inpost-geowidget.js" defer></script>
+
+<script>
+    //map on/off
+    function toggleInpostMap() { 
+        const method = document.getElementById('delivery_method').value;
+        const mapContainer = document.getElementById('inpost-map-container');
+        
+        if (method === 'inpost') {
+            mapContainer.style.display = 'block';
+        } else {
+            mapContainer.style.display = 'none';
+        }
+    }
+
+    //map click
+    document.addEventListener('onpointselect', function(event) {
+        const point = event.detail;
+        
+        document.getElementById('pickup_point_id').value = point.name;
+        document.getElementById('selected-paczkomat-info').innerText = `Wybrano punkt: ${point.name} (${point.address.line1}, ${point.address.line2})`;
+        document.getElementById('inpost-map-container').style.display = 'none';
+    });
+</script>
+{% endblock %}
