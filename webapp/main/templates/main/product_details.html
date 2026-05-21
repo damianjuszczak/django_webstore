@@ -72,7 +72,12 @@
                 {% endfor %}
             </ul>
         {% endif %}
-
+        <form action="{% url 'wishlist_add' product.id %}" method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark btn-lg rounded px-5">
+                <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do listy życzeń
+            </button>
+        </form>
         <form action="{% url 'cart_add' product.id %}" method="post" class="mt-4">
             {% csrf_token %}
             <button type="submit" class="btn btn-dark btn-lg rounded px-5" {% if product.stock <= 0 %}disabled{% endif %}>

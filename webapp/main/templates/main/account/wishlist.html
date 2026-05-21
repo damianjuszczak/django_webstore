@@ -1,31 +1,44 @@
-body {
-    margin: 0;
-    padding: 0;
-    background-image: url("../img/os_background_pattern.png");
-    background-size: 500px;
-    background-repeat: repeat;
-    background-attachment: fixed;
-    min-height: 100vh;
-}
+{% extends 'main/layout/layout.html' %}
 
-/* GŁÓWNY KONTENER */
-.main-content-wrapper {
-    background-color: rgba(255, 255, 255, 0.96);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
+{% block title%}Wishlist{% endblock %}
 
-/* KARTY PRODUKTÓW */
-.card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
-}
+{% block content%}
+    <div class="features">
+        <h1>Lista życzeń</h1>
+        <hr>
+        {% if wishlist_items|length == 0 %}
+            <p>Twoja lista życzeń jest obecnie pusta.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">Przeglądaj produkty</a>
+         {% else %}
+            {% for item in wishlist_items %}
+                <div class="feature">
+                    <a href="{% url 'product_details' item.product.slug %}">
+                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="feature-image">
+                        <h2 class="feature-title">{{ item.product.name }}</h2>
+                    </a>
+                    <p>{{ item.product.description }}</p>
+                        <form action="{% url 'cart_add' item.product.id %}" method="post" class="mt-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-dark btn-sm" {% if item.product.stock <= 0 %}disabled{% endif %}>
+                                <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do koszyka
+                            </button>
+                        </form>
+                        <form action="{% url 'wishlist_remove' item.product.id %}" method="post" class="mt-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Usuń z listy życzeń</button>
+                        </form>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+<style>
+/* Główny kontener na kafelki - układa elementy w siatkę (Grid) */
+.features {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
 }
 
 /* Kiedy lista jest pusta, wyśrodkuj komunikat */
@@ -126,3 +139,4 @@ body {
     font-weight: 500;
     border-radius: 6px;
 }
+</style>
