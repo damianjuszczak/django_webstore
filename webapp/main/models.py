@@ -130,6 +130,13 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    DELIVERY_CHOICES = [
+        ('courier', 'Kurier do domu'),
+        ('inpost', 'Paczkomat InPost'),
+    ]
+    delivery_method = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default='courier')
+    pickup_point_id = models.CharField(max_length=100, blank=True, null=True, verbose_name="ID Punktu Odbioru")
+
     class Meta:
         ordering = ['-created_at']
 
