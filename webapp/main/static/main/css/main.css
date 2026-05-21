@@ -27,3 +27,16 @@ body {
     transform: translateY(-5px);
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
 }
+
+/* CUSTOM MAP BUTTON */
+.btn-map-custom {
+    border-radius: 12px; 
+    padding: 12px;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-map-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}

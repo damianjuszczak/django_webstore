@@ -334,7 +334,7 @@ def checkout(request):
             zip_code=zip_code,
             country="Polska",
             delivery_method=delivery_method,
-            pickup_point_id=pickup_point_id if delivery_method == 'inpost' else None
+            pickup_point_id=pickup_point_id if delivery_method == 'pickup_point' else None
         )
 
         items_to_add = [{"product": item["product"], "quantity": item["quantity"]} for item in cart]

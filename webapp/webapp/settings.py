@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True #show errors during program usage
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['showcase.test', 'localhost', '127.0.0.1']
 
 
 # Application definition

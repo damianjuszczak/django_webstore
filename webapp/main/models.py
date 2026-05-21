@@ -132,7 +132,7 @@ class Order(models.Model):
 
     DELIVERY_CHOICES = [
         ('courier', 'Kurier do domu'),
-        ('inpost', 'Paczkomat InPost'),
+        ('pickup_point', 'Punkt odbioru'),
     ]
     delivery_method = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default='courier')
     pickup_point_id = models.CharField(max_length=100, blank=True, null=True, verbose_name="ID Punktu Odbioru")
