@@ -158,7 +158,9 @@ def category_details(request, category_slug):
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
-    return render(request, "main/product_details.html", {"product": product})
+    if request.user.is_authenticated:
+        in_wishlist = WishlistItem.objects.filter(user=request.user, product=product).exists()
+    return render(request, "main/product_details.html", {"product": product, "in_wishlist": in_wishlist})
 
 
 def change_currency(request):
@@ -489,13 +491,24 @@ def profile_wishlist(request):
 
 def wishlist_add(request, product_id):
     if not request.user.is_authenticated:
+        messages.error(request, "Musisz się zalogować!")
         return redirect("login")
+
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Szukamy, czy ten produkt jest już na liście tego użytkownika
+    wishlist_item = WishlistItem.objects.filter(user=request.user, product=product)
+
+    if wishlist_item.exists():
+        # KROK A: Jeśli istnieje, to go usuwamy!
+        wishlist_item.delete()
+        messages.success(request, f'Produkt "{product.name}" został usunięty z listy życzeń.')
     else:
-        product = get_object_or_404(Product, id=product_id)
-        WishlistItem.objects.get_or_create(user=request.user, product=product)
+        # KROK B: Jeśli nie istnieje, to go dodajemy!
+        WishlistItem.objects.create(user=request.user, product=product)
+        messages.success(request, f'Produkt "{product.name}" został dodany do listy życzeń!')
 
-    messages.success(request, f'Produkt "{product.name}" został dodany do listy życzeń!')
-
+    # Powrót na poprzednią stronę
     previous_url = request.META.get("HTTP_REFERER")
     if previous_url:
         return redirect(previous_url)

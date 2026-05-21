@@ -1,142 +1,72 @@
 {% extends 'main/layout/layout.html' %}
 
-{% block title%}Wishlist{% endblock %}
+{% block title %}Wishlist{% endblock %}
 
-{% block content%}
-    <div class="features">
+{% block content %}
+    <div class="wishlist-container">
         <h1>Lista życzeń</h1>
         <hr>
         {% if wishlist_items|length == 0 %}
-            <p>Twoja lista życzeń jest obecnie pusta.</p>
-            <a href="{% url 'home' %}" class="btn btn-primary">Przeglądaj produkty</a>
-         {% else %}
-            {% for item in wishlist_items %}
-                <div class="feature">
-                    <a href="{% url 'product_details' item.product.slug %}">
-                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="feature-image">
-                        <h2 class="feature-title">{{ item.product.name }}</h2>
-                    </a>
-                    <p>{{ item.product.description }}</p>
-                        <form action="{% url 'cart_add' item.product.id %}" method="post" class="mt-2">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-dark btn-sm" {% if item.product.stock <= 0 %}disabled{% endif %}>
-                                <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do koszyka
-                            </button>
-                        </form>
-                        <form action="{% url 'wishlist_remove' item.product.id %}" method="post" class="mt-2">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Usuń z listy życzeń</button>
-                        </form>
-                </div>
-            {% endfor %}
+            <div class="wishlist-empty">
+                <p>Twoja lista życzeń jest obecnie pusta.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">Przeglądaj produkty</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="wishlist-table">
+                    <thead>
+                        <tr>
+                            <th>Produkt</th>
+                            <th>Nazwa</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in wishlist_items %}
+                            <tr>
+                                <td class="col-img">
+                                    <a href="{% url 'product_details' item.product.slug %}">
+                                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="wishlist-thumb">
+                                    </a>
+                                </td>
+                                
+                                <td class="col-title">
+                                    <a href="{% url 'product_details' item.product.slug %}" class="product-link">
+                                        <div class="product-name">{{ item.product.name }}</div>
+                                    </a>
+                                    <div class="product-desc-short">{{ item.product.description }}</div>
+                                </td>
+                                
+                                <td class="col-status text-center">
+                                    {% if item.product.stock > 0 %}
+                                        <span class="badge bg-success-light">Dostępny</span>
+                                    {% else %}
+                                        <span class="badge bg-danger-light">Brak w magazynie</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="col-actions">
+                                    <div class="action-buttons">
+                                        <form action="{% url 'cart_add' item.product.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-dark btn-sm" {% if item.product.stock <= 0 %}disabled{% endif %}>
+                                                <i class="fa-solid fa-cart-plus"></i> Dodaj
+                                            </button>
+                                        </form>
+                                        <form action="{% url 'wishlist_remove' item.product.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% endif %}
     </div>
 {% endblock %}
-
-<style>
-/* Główny kontener na kafelki - układa elementy w siatkę (Grid) */
-.features {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-/* Kiedy lista jest pusta, wyśrodkuj komunikat */
-.features > p {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #6c757d;
-    margin-top: 3rem;
-}
-.features > .btn-primary {
-    display: block;
-    width: max-content;
-    margin: 1.5rem auto;
-}
-
-/* Siatka dla kafelków z produktami */
-.features {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-}
-
-/* Nadpisanie zachowania nagłówka i linii, aby nie psuły siatki siatki (Grid) */
-.features h1, .features hr {
-    grid-column: 1 / -1;
-    margin-bottom: 0.5rem;
-}
-
-/* Pojedynczy kafelek produktu na liście życzeń */
-.feature {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-/* Efekt uniesienia kafelka po najechaniu myszką (Hover) */
-.feature:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Usunięcie domyślnego podkreślenia linku wokół zdjęcia i tytułu */
-.feature a {
-    text-decoration: none;
-    color: #212529;
-}
-
-/* Stylizacja obrazka produktu */
-.feature-image {
-    width: 100%;
-    height: 200px;
-    object-fit: contain; /* Obrazek dopasuje się bez ucinania krawędzi */
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-}
-
-/* Tytuł produktu */
-.feature-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    /* Obcinanie długich tytułów do maksymalnie 2 linijek */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    height: 3rem;
-}
-
-/* Opis produktu */
-.feature p {
-    font-size: 0.9rem;
-    color: #6c757d;
-    margin-bottom: 1.5rem;
-    /* Obcinanie długich opisów do maksymalnie 3 linijek, żeby kafelki były równe */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    height: 4rem;
-}
-
-/* Przyciski i formularze na dole kafelka */
-.feature form {
-    width: 100%;
-}
-
-.feature .btn {
-    width: 100%; /* Przyciski rozciągają się na pełną szerokość kafelka */
-    padding: 0.5rem;
-    font-weight: 500;
-    border-radius: 6px;
-}
-</style>

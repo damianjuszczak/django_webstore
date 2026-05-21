@@ -72,15 +72,31 @@
                 {% endfor %}
             </ul>
         {% endif %}
-        <form action="{% url 'wishlist_add' product.id %}" method="post" class="mt-4">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark btn-lg rounded px-5">
-                <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do listy życzeń
-            </button>
+        <div class="d-grid gap-3 mt-4" style="max-width: 400px;"> 
+        
+
+        <form action="{% url 'wishlist_add' product.id %}" method="post" class="w-100">
+        {% csrf_token %}
+        
+        {% if in_wishlist %}
+                <button type="submit" class="btn btn-secondary btn-lg rounded w-100 py-3 btn-wishlist-active">
+                    <span class="state-default">
+                        <i class="fa-solid fa-heart me-2"></i> Dodane do listy życzeń
+                    </span>
+                    <span class="state-hover">
+                        <i class="fa-solid fa-heart-crack me-2"></i> Usuń z listy życzeń?
+                    </span>
+                </button>
+            {% else %}
+                <button type="submit" class="btn btn-secondary btn-lg rounded w-100 py-3">
+                    <i class="fa-regular fa-heart me-2"></i> Dodaj do listy życzeń
+                </button>
+            {% endif %}
+            
         </form>
-        <form action="{% url 'cart_add' product.id %}" method="post" class="mt-4">
+        <form action="{% url 'cart_add' product.id %}" method="post" class="w-100">
             {% csrf_token %}
-            <button type="submit" class="btn btn-dark btn-lg rounded px-5" {% if product.stock <= 0 %}disabled{% endif %}>
+            <button type="submit" class="btn btn-dark btn-lg rounded w-100 py-3" {% if product.stock <= 0 %}disabled{% endif %}>
                 <i class="fa-solid fa-cart-plus me-2"></i> Dodaj do koszyka
             </button>
         </form>
