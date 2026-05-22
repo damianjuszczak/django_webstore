@@ -87,7 +87,7 @@
                     <li><a class="dropdown-item" href="{% url 'contact' %}"><i class="fa-solid fa-headset me-2"></i>Pomoc i Wsparcie</a></li>
                     
                     <div class="logout-wrapper mt-2">
-                        <form method="POST" action="{% url 'logout_user' %}" class="m-0 p-0">
+                        <form method="POST" action="{% url 'logout_user' %}" method="post" class="logout-form m-0 p-0">
                             {% csrf_token %}
                             <button class="btn btn-outline-danger btn-sm w-100 fw-bold" type="submit">
                                 <i class="fa-solid fa-power-off me-2"></i>Wyloguj się
