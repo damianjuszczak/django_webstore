@@ -105,10 +105,26 @@
             callback: function(params) {
                 const point = params.point;
                 
-                document.getElementById('pickup_point_id').value = point.code;
+                document.getElementById('pickup_point_id').value = point.code; //save point id
                 
-                document.getElementById('selected-pickup_point-info').innerText = 
-                    `Wybrano punkt: ${point.name} (${point.address.street} ${point.address.buildingNumber}, ${point.address.city})`;
+                let fullAddress = point.name; 
+                
+                //chceck if point adress is avaliable
+                if (point.address) {
+                    const street = point.address.street || "";
+                    const building = point.address.buildingNumber || "";
+                    const city = point.address.city || "";
+                    fullAddress = `${point.name}, ${street} ${building}, ${city}`;
+                }
+                
+                const addressInput = document.getElementById('pickup_point_address');
+                if (addressInput) {
+                    addressInput.value = fullAddress;
+                }
+                
+                //user text message
+                document.getElementById('selected-pickup_point-info').innerText = `Wybrano punkt: ${fullAddress}`;
+                
             }
         });
         

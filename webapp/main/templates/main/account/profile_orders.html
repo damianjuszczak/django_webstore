@@ -94,7 +94,19 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="px-2 py-3 mx-2 mt-3 border-top d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted d-block mb-1" style="font-size: 0.85rem;">Metoda dostawy:</span>
+                        {% if order.delivery_method == 'pickup_point' %}
+                            <span class="badge bg-info text-dark"><i class="fa-solid fa-box me-1"></i> Punkt Odbioru</span>
+                            <div class="text-muted mt-1" style="font-size: 0.85rem;">
+                                Kod punktu: <strong class="text-dark">{{ order.pickup_point_id }}</strong>
+                            </div>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="fa-solid fa-truck me-1"></i> Kurier na adres domowy</span>
+                        {% endif %}
+                    </div>
+                </div>
                 <div class="card-footer py-3 m-2 border-top-0 d-flex justify-content-between align-items-center">
                     <span class="text-muted">Wartość całkowita:</span>
                     <h4 class="badge bg-secondary mb-0 fw-bold fs-6">{{ order.get_total_price }} zł</h4>
