@@ -62,15 +62,15 @@
 
         {% if request.user.is_authenticated %}
             <div class="nav-item dropdown profile-dropdown">
-                <a class="nav-link d-flex align-items-center py-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2 text-white fw-bold d-none d-lg-inline">{{ request.user.username }}</span>
-                    
+                <a class="nav-link d-flex align-items-center py-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">                   
                     <div class="avatar-wrapper">
+                        <a href="{% url 'profile_info' %}">
                         {% if request.user.profile.avatar %}
                             <img src="{{ request.user.profile.avatar.url }}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 35px; height: 35px; object-fit: cover;">
                         {% else %}
                             <img src="{% static 'main/img/profile_placeholder.png' %}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 35px; height: 35px; filter: invert(1)">
                         {% endif %}
+                        </a>
                     </div>
                 </a>
                 
@@ -83,7 +83,7 @@
                     
                     <li><a class="dropdown-item" href="{% url 'profile_info' %}"><i class="fa-solid fa-user-circle me-2"></i>Mój Profil</a></li>
                     <li><a class="dropdown-item" href="{% url 'profile_orders' %}"><i class="fa-solid fa-receipt me-2"></i>Moje Zamówienia</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-heart me-2"></i>Lista życzeń</a></li>
+                    <li><a class="dropdown-item" href="{% url 'profile_wishlist' %}"><i class="fa-solid fa-heart me-2"></i>Lista życzeń</a></li>
                     <li><a class="dropdown-item" href="{% url 'contact' %}"><i class="fa-solid fa-headset me-2"></i>Pomoc i Wsparcie</a></li>
                     
                     <div class="logout-wrapper mt-2">
