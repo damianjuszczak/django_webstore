@@ -101,7 +101,9 @@
                         {% if order.delivery_method == 'pickup_point' %}
                             <span class="badge bg-info text-dark"><i class="fa-solid fa-box me-1"></i> Punkt Odbioru</span>
                             <div class="text-muted mt-1" style="font-size: 0.85rem;">
-                                Punkt: <strong class="text-dark">{{ order.pickup_point_address|default:order.pickup_point_id }}</strong>
+                                Sieć: <strong class="text-dark">{{ order.pickup_point_network|title|default:"Punkt partnerski" }}</strong><br>
+                                Adres: <strong class="text-dark">{{ order.pickup_point_address|default:order.pickup_point_id }}</strong> 
+                                (Kod: {{ order.pickup_point_id }})
                             </div>
                         {% else %}
                             <span class="badge bg-secondary"><i class="fa-solid fa-truck me-1"></i> Kurier na adres domowy</span>

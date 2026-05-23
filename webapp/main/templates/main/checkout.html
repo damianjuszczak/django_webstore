@@ -48,6 +48,7 @@
 
                 <input type="hidden" name="pickup_point_id" id="pickup_point_id">
                 <input type="hidden" name="pickup_point_address" id="pickup_point_address">
+                <input type="hidden" name="pickup_point_network" id="pickup_point_network"> <p id="selected-pickup_point-info" class="text-success fw-bold"></p>
                 
                 <p id="selected-pickup_point-info" class="text-success fw-bold"></p>
 
@@ -107,6 +108,9 @@
                 const point = params.point;
                 
                 document.getElementById('pickup_point_id').value = point.code; //save point id
+
+                const provider = point.provider || "Nieznany"; // company name
+                document.getElementById('pickup_point_network').value = provider;
                 
                 let fullAddress = point.name; 
                 
@@ -124,7 +128,7 @@
                 }
                 
                 //user text message
-                document.getElementById('selected-pickup_point-info').innerText = `Wybrano punkt: ${fullAddress}`;
+                document.getElementById('selected-pickup_point-info').innerText = `Wybrano punkt (${provider.toUpperCase()}): ${fullAddress}`;
                 
             }
         });

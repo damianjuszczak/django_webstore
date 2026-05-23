@@ -325,6 +325,7 @@ def checkout(request):
         delivery_method = request.POST.get("delivery_method")
         pickup_point_id = request.POST.get("pickup_point_id")
         pickup_point_address = request.POST.get("pickup_point_address")
+        pickup_point_network = request.POST.get("pickup_point_network")
 
         order = Order.objects.create(
             user=request.user,
@@ -338,7 +339,8 @@ def checkout(request):
             country="Polska",
             delivery_method=delivery_method,
             pickup_point_id=pickup_point_id if delivery_method == 'pickup_point' else None,
-            pickup_point_address=pickup_point_address if delivery_method == 'pickup_point' else None
+            pickup_point_address=pickup_point_address if delivery_method == 'pickup_point' else None,
+            pickup_point_network=pickup_point_network if delivery_method == 'pickup_point' else None
         )
 
         items_to_add = [{"product": item["product"], "quantity": item["quantity"]} for item in cart]
