@@ -136,6 +136,7 @@ class Order(models.Model):
     ]
     delivery_method = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default='courier')
     pickup_point_id = models.CharField(max_length=100, blank=True, null=True, verbose_name="ID Punktu Odbioru")
+    pickup_point_address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Adres punktu odbioru")
 
     class Meta:
         ordering = ['-created_at']
