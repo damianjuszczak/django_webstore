@@ -311,6 +311,8 @@ def checkout(request):
     if len(cart) == 0:
         messages.error(request, "Twój koszyk jest pusty.")
         return redirect("cart")
+    
+    
 
     if request.method == "POST":
         first_name = request.POST.get("first_name")
@@ -350,7 +352,6 @@ def checkout(request):
             messages.error(request, "Brak produktów na stanie.")
             return redirect("cart")
 
-    # Gdy metoda to GET (użytkownik wchodzi na stronę), przygotowujemy dane
     profile = request.user.profile
     initial_data = {
         "first_name": request.user.first_name,
@@ -361,7 +362,14 @@ def checkout(request):
         "zip_code": profile.zip_code,
     }
 
-    return render(request, "main/checkout.html", {"cart": cart, "data": initial_data})
+    context = {
+        "cart": cart, 
+        "data": initial_data,
+        "furgonetka_api_key": getattr(settings, 'FURGONETKA_API_KEY', '')
+    }
+
+    return render(request, "main/checkout.html", context)
+
 
 @login_required
 def profile_reports(request):

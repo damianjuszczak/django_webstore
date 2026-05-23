@@ -100,7 +100,7 @@
         }
         
         const map = new window.Furgonetka.Map({
-            apiKey: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGdXJnb25ldGthLnBsIiwiaWF0IjoxNzc5Mzk5NTQyLjA5MTIxOCwic3ViIjoiZjIxZWUyYmUtZGMxYy00MThhLThjNzctMzFkM2VhYTUyNGFhIn0.wL4R-5LefqETIh8sfYkOiAWscA6fRPxO-ytFil-axvU', 
+            apiKey: '{{ furgonetka_api_key }}', 
             courierServices: ['inpost', 'dpd', 'orlen', 'poczta'], 
             callback: function(params) {
                 const point = params.point;
