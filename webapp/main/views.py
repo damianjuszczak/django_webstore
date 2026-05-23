@@ -1,4 +1,4 @@
-from .models import Product, Profile, Category, Order, OrderItem, ContactMessage
+from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem
 from .cart import Cart
 from .contact import ContactForm
 
@@ -158,7 +158,9 @@ def category_details(request, category_slug):
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
-    return render(request, "main/product_details.html", {"product": product})
+    if request.user.is_authenticated:
+        in_wishlist = WishlistItem.objects.filter(user=request.user, product=product).exists()
+    return render(request, "main/product_details.html", {"product": product, "in_wishlist": in_wishlist})
 
 
 def change_currency(request):
@@ -547,3 +549,53 @@ def order_cancel(request, order_id):
             },
             status=400,
         )
+
+@login_required
+def profile_wishlist(request):
+    wishlist_items = WishlistItem.objects.filter(user=request.user).all()
+    return render(
+        request,
+        "main/account/wishlist.html",
+        {"user": request.user, "wishlist_items": wishlist_items},
+    )
+
+def wishlist_add(request, product_id):
+    if not request.user.is_authenticated:
+        messages.error(request, "Musisz się zalogować!")
+        return redirect("login")
+
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Szukamy, czy ten produkt jest już na liście tego użytkownika
+    wishlist_item = WishlistItem.objects.filter(user=request.user, product=product)
+
+    if wishlist_item.exists():
+        # KROK A: Jeśli istnieje, to go usuwamy!
+        wishlist_item.delete()
+        messages.success(request, f'Produkt "{product.name}" został usunięty z listy życzeń.')
+    else:
+        # KROK B: Jeśli nie istnieje, to go dodajemy!
+        WishlistItem.objects.create(user=request.user, product=product)
+        messages.success(request, f'Produkt "{product.name}" został dodany do listy życzeń!')
+
+    # Powrót na poprzednią stronę
+    previous_url = request.META.get("HTTP_REFERER")
+    if previous_url:
+        return redirect(previous_url)
+    else:
+        return redirect("home")
+    
+def wishlist_remove(request, product_id):
+    if not request.user.is_authenticated:
+        return redirect("login")
+    else:
+        product = get_object_or_404(Product, id=product_id)
+        WishlistItem.objects.filter(user=request.user, product=product).delete()
+
+    messages.info(request, f'Produkt "{product.name}" został usunięty z listy życzeń.')
+
+    previous_url = request.META.get("HTTP_REFERER")
+    if previous_url:
+        return redirect(previous_url)
+    else:
+        return redirect("home")

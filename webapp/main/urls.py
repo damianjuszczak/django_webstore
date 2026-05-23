@@ -23,6 +23,9 @@ urlpatterns = [
     path('profile/', views.profile_info, name='profile_info'),
     path('profile/orders/', views.profile_orders, name='profile_orders'),
     path('profile/reports/', views.profile_reports, name='profile_reports'),
+    path('profile/add/<int:product_id>/', views.wishlist_add, name='wishlist_add'),
+    path('profile/remove/<int:product_id>/', views.wishlist_remove, name='wishlist_remove'),
+    path('profile/wishlist/', views.profile_wishlist, name='profile_wishlist'),
     path('api/profile/delete/', views.profile_delete, name='profile_delete'),
     path('api/profile/profile-change-info/', views.profile_change_info, name='profile-change-info'),
     

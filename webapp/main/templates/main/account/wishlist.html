@@ -1,0 +1,72 @@
+{% extends 'main/layout/layout.html' %}
+
+{% block title %}Wishlist{% endblock %}
+
+{% block content %}
+    <div class="wishlist-container">
+        <h1>Lista życzeń</h1>
+        <hr>
+        {% if wishlist_items|length == 0 %}
+            <div class="wishlist-empty">
+                <p>Twoja lista życzeń jest obecnie pusta.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">Przeglądaj produkty</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="wishlist-table">
+                    <thead>
+                        <tr>
+                            <th>Produkt</th>
+                            <th>Nazwa</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in wishlist_items %}
+                            <tr>
+                                <td class="col-img">
+                                    <a href="{% url 'product_details' item.product.slug %}">
+                                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="wishlist-thumb">
+                                    </a>
+                                </td>
+                                
+                                <td class="col-title">
+                                    <a href="{% url 'product_details' item.product.slug %}" class="product-link">
+                                        <div class="product-name">{{ item.product.name }}</div>
+                                    </a>
+                                    <div class="product-desc-short">{{ item.product.description }}</div>
+                                </td>
+                                
+                                <td class="col-status text-center">
+                                    {% if item.product.stock > 0 %}
+                                        <span class="badge bg-success-light">Dostępny</span>
+                                    {% else %}
+                                        <span class="badge bg-danger-light">Brak w magazynie</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="col-actions">
+                                    <div class="action-buttons">
+                                        <form action="{% url 'cart_add' item.product.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-dark btn-sm" {% if item.product.stock <= 0 %}disabled{% endif %}>
+                                                <i class="fa-solid fa-cart-plus"></i> Dodaj
+                                            </button>
+                                        </form>
+                                        <form action="{% url 'wishlist_remove' item.product.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

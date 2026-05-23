@@ -40,3 +40,165 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
+/*POCZĄTEK CSSA DLA STRONY LISTY ŻYCZEŃ*/
+/* Główny kontener strony listy życzeń */
+.wishlist-container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+/* Wygląd pustej listy */
+.wishlist-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: #6c757d;
+}
+
+/* Stylizacja nowoczesnej tabeli */
+.wishlist-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.75rem; /* Tworzy eleganckie przerwy między wierszami */
+}
+
+/* Nagłówki kolumn */
+.wishlist-table th {
+    font-weight: 600;
+    color: #495057;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Wygląd pojedynczego wiersza (produktu) */
+.wishlist-table tbody tr {
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    border: 1px solid #e0e0e0;
+    transition: background-color 0.2s ease;
+}
+
+.wishlist-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.wishlist-table td {
+    padding: 1.2rem 1rem;
+    vertical-align: middle;
+    border-top: 1px solid #eef0f2;
+    border-bottom: 1px solid #eef0f2;
+}
+.wishlist-table td:first-child {
+    border-left: 1px solid #eef0f2;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+.wishlist-table td:last-child {
+    border-right: 1px solid #eef0f2;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.wishlist-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+/* Kolumna tekstowa */
+.product-link {
+    text-decoration: none;
+    color: #212529;
+}
+.product-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+}
+.product-name:hover {
+    color: #0d6efd; /* Kolor podświetlenia linku */
+}
+/* Krótki opis - KLUCZOWA ZMIANA */
+.product-desc-short {
+    font-size: 0.85rem;
+    color: #6c757d;
+    max-width: 450px;
+    
+    /* Zmieniamy z nowrap na normal, żeby tekst przechodził do kolejnej linii! */
+    white-space: normal; 
+    
+    /* Te linijki dbają o to, żeby opis z bazy nie rozciągnął wiersza w nieskończoność */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Maksymalnie 2 linijki opisu na małym ekranie */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Ładne, pastelowe plakietki statusu (Badge) */
+.bg-success-light {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+.bg-danger-light {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+/* Układ przycisków akcji */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+.action-buttons form {
+    margin: 0;
+}
+
+/* Domyślny stan przycisku z napisem "Dodane..." */
+.btn-wishlist-active {
+    position: relative;
+    transition: all 0.3s ease !important;
+}
+
+/* Ukrywamy napis "Usuń z listy..." w normalnym stanie */
+.btn-wishlist-active .state-hover {
+    display: none;
+}
+
+/* Pokazujemy tradycyjny napis "Dodane do listy..." */
+.btn-wishlist-active .state-default {
+    display: inline-block;
+}
+
+/* --- MAGIA HOVER (Gdy użytkownik nakieruje myszkę) --- */
+.btn-wishlist-active:hover {
+    background-color: #dc3545 !important; /* Dynamiczna czerwień z Bootstrapa (btn-danger) */
+    border-color: #dc3545 !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); /* Stylowa, czerwona poświata wokół */
+}
+
+/* Po najechaniu chowamy napis domyślny */
+.btn-wishlist-active:hover .state-default {
+    display: none;
+}
+
+/* Po najechaniu wyciągamy na wierzch napis z pytaniem o usunięcie */
+.btn-wishlist-active:hover .state-hover {
+    display: inline-block;
+    animation: fadeInShort 0.2s ease-in-out; /* Delikatne, płynne pojawienie się tekstu */
+}
+/* KONIEC CSSA DLA STRONY LISTY ŻYCZEŃ */
+/*--------------------------------------------------*/
