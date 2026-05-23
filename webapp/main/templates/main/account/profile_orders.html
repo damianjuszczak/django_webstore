@@ -1,5 +1,6 @@
 {% extends "main/account/profile_base.html" %}
 {% load static %}
+{% load currency_tags %}
 {% block title %}Profil > Zamówienia{% endblock %}
 
 {% block profile_content %}
@@ -80,12 +81,12 @@
 
                                                 <div class="ms-3">
                                                     <h6 class="mb-0 fw-semibold">{{ item.product.name }}</h6>
-                                                    <small class="text-muted">{{ item.quantity }} szt. × {{ item.price }} zł</small>
+                                                    <small class="text-muted">{{ item.quantity }} szt. × {% convert_price item.price %}</small>
                                                 </div>
                                             </div>
                                             
                                             <span class="fw-bold text-dark text-nowrap ms-2">
-                                                {{ item.get_total_price }} zł
+                                                {% convert_price item.get_total_price %}
                                             </span>
                                         </li>
                                     {% endfor %}
@@ -94,10 +95,24 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="px-2 py-3 mx-2 mt-3 border-top d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted d-block mb-1" style="font-size: 0.85rem;">Metoda dostawy:</span>
+                        {% if order.delivery_method == 'pickup_point' %}
+                            <span class="badge bg-info text-dark"><i class="fa-solid fa-box me-1"></i> Punkt Odbioru</span>
+                            <div class="text-muted mt-1" style="font-size: 0.85rem;">
+                                Sieć: <strong class="text-dark">{{ order.pickup_point_network|title|default:"Punkt partnerski" }}</strong><br>
+                                Adres: <strong class="text-dark">{{ order.pickup_point_address|default:order.pickup_point_id }}</strong> 
+                                (Kod: {{ order.pickup_point_id }})
+                            </div>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="fa-solid fa-truck me-1"></i> Kurier na adres domowy</span>
+                        {% endif %}
+                    </div>
+                </div>
                 <div class="card-footer py-3 m-2 border-top-0 d-flex justify-content-between align-items-center">
                     <span class="text-muted">Wartość całkowita:</span>
-                    <h4 class="badge bg-secondary mb-0 fw-bold fs-6">{{ order.get_total_price }} zł</h4>
+                    <h4 class="badge bg-secondary mb-0 fw-bold fs-6">{% convert_price order.get_total_price %}</h4>
                 </div>
             </div>
         {% empty %}

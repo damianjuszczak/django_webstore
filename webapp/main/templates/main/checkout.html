@@ -1,0 +1,139 @@
+{% extends 'main/layout/layout.html' %}
+
+{% load currency_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Podsumowanie zamówienia</h2>
+    
+    <div class="row">
+        <div class="col-md-7">
+            <form method="POST" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                
+                <h4>Dane do wysyłki</h4>
+                <div class="mb-3">
+                    <label>Imię</label>
+                    <input type="text" name="first_name" class="form-control" value="{{ data.first_name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Nazwisko</label>
+                    <input type="text" name="last_name" class="form-control" value="{{ data.last_name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Telefon</label>
+                    <input type="text" name="phone" class="form-control" value="{{ data.phone }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>Ulica i numer domu</label>
+                    <input type="text" name="address" class="form-control" value="{{ data.address }}" required>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Miasto</label>
+                        <input type="text" name="city" class="form-control" value="{{ data.city }}" required>
+                    </div>
+                    <div class="col">
+                        <label>Kod pocztowy</label>
+                        <input type="text" name="zip_code" class="form-control" value="{{ data.zip_code }}" required>
+                    </div>
+                </div>
+
+                <hr>
+                <h4>Metoda dostawy</h4>
+                <select name="delivery_method" id="delivery_method" class="form-select mb-3" onchange="toggleMapButton()">
+                    <option value="courier">Kurier do domu</option>
+                    <option value="pickup_point">Punkt Odbioru</option>
+                </select>
+
+                <input type="hidden" name="pickup_point_id" id="pickup_point_id">
+                <input type="hidden" name="pickup_point_address" id="pickup_point_address">
+                <input type="hidden" name="pickup_point_network" id="pickup_point_network"> <p id="selected-pickup_point-info" class="text-success fw-bold"></p>
+                
+                <p id="selected-pickup_point-info" class="text-success fw-bold"></p>
+
+                <div id="map-button-container" style="display: none; margin-bottom: 20px;">
+                    <button type="button" id="show-map-btn" class="btn btn-primary w-100 btn-map-custom">
+                        Wybierz punkt odbioru na mapie
+                    </button>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">Potwierdź i kup</button>
+            </form>
+        </div>
+
+        <h4>Twój koszyk</h4>
+            <ul class="list-group">
+                {% for item in cart %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ item.product.name }} (x{{ item.quantity }})</span>
+                        
+                        <span>{% convert_price item.total_price %}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <h5 class="mt-3 text-end">Suma: {% convert_price cart.get_total_price %}</h5>
+        </div>
+    </div>
+</div>
+
+<script src="https://furgonetka.pl/js/dist/map/map.js" async></script>
+
+<script>
+    // map visibility based on delivery method
+    function toggleMapButton() { 
+        const method = document.getElementById('delivery_method').value;
+        const mapButtonContainer = document.getElementById('map-button-container');
+        
+        if (method === 'pickup_point') {
+            mapButtonContainer.style.display = 'block';
+        } else {
+            mapButtonContainer.style.display = 'none';
+            document.getElementById('pickup_point_id').value = '';
+            document.getElementById('selected-pickup_point-info').innerText = '';
+        }
+    }
+
+    document.getElementById('show-map-btn').addEventListener('click', function() {
+        if (!window.Furgonetka) {
+            alert('Skrypt mapy jeszcze się ładuje. Proszę spróbować za chwilę.');
+            return;
+        }
+        
+        const map = new window.Furgonetka.Map({
+            apiKey: '{{ furgonetka_api_key }}', 
+            courierServices: ['inpost', 'dpd', 'orlen', 'poczta'], 
+            callback: function(params) {
+                const point = params.point;
+                
+                document.getElementById('pickup_point_id').value = point.code; //save point id
+
+                const provider = point.type || "Nieznany"; // company name
+                document.getElementById('pickup_point_network').value = provider;
+                
+                let fullAddress = point.name; 
+                
+                //chceck if point adress is avaliable
+                if (point.address) {
+                    const street = point.address.street || "";
+                    const building = point.address.buildingNumber || "";
+                    const city = point.address.city || "";
+                    fullAddress = `${point.name}, ${street} ${building}, ${city}`;
+                }
+                
+                const addressInput = document.getElementById('pickup_point_address');
+                if (addressInput) {
+                    addressInput.value = fullAddress;
+                }
+                
+                //user text message
+                document.getElementById('selected-pickup_point-info').innerText = `Wybrano punkt (${provider.toUpperCase()}): ${fullAddress}`;
+                
+            }
+        });
+        
+        map.show();
+    });
+</script>
+{% endblock %}

@@ -306,6 +306,76 @@ def profile_orders(request):
         {"user": request.user, "orders": orders, "active_tab": "orders"},
     )
 
+@login_required
+@transaction.atomic
+def checkout(request):
+    cart = Cart(request)
+    if len(cart) == 0:
+        messages.error(request, "Twój koszyk jest pusty.")
+        return redirect("cart")
+    
+    
+
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        phone = request.POST.get("phone")
+        address = request.POST.get("address")
+        city = request.POST.get("city")
+        zip_code = request.POST.get("zip_code")
+
+        delivery_method = request.POST.get("delivery_method")
+        pickup_point_id = request.POST.get("pickup_point_id")
+        pickup_point_address = request.POST.get("pickup_point_address")
+        pickup_point_network = request.POST.get("pickup_point_network")
+
+        order = Order.objects.create(
+            user=request.user,
+            first_name=first_name,
+            last_name=last_name,
+            email=request.user.email,
+            phone=phone,
+            address=address,
+            city=city,
+            zip_code=zip_code,
+            country="Polska",
+            delivery_method=delivery_method,
+            pickup_point_id=pickup_point_id if delivery_method == 'pickup_point' else None,
+            pickup_point_address=pickup_point_address if delivery_method == 'pickup_point' else None,
+            pickup_point_network=pickup_point_network if delivery_method == 'pickup_point' else None
+        )
+
+        items_to_add = [{"product": item["product"], "quantity": item["quantity"]} for item in cart]
+        added_count = process_order_items(order, items_to_add, request)
+
+        if added_count > 0:
+            request.session["cart"] = {}
+            request.session.modified = True
+            messages.success(request, "Zamówienie zostało złożone pomyślnie!")
+            return redirect("profile_orders")
+        else:
+            transaction.set_rollback(True)
+            messages.error(request, "Brak produktów na stanie.")
+            return redirect("cart")
+
+    profile = request.user.profile
+    initial_data = {
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name,
+        "phone": profile.phone,
+        "address": profile.address,
+        "city": profile.city,
+        "zip_code": profile.zip_code,
+    }
+
+    context = {
+        "cart": cart, 
+        "data": initial_data,
+        "furgonetka_api_key": getattr(settings, 'FURGONETKA_API_KEY', '')
+    }
+
+    return render(request, "main/checkout.html", context)
+
 
 @login_required
 def profile_reports(request):
