@@ -43,7 +43,7 @@
                 <h4>Metoda dostawy</h4>
                 <select name="delivery_method" id="delivery_method" class="form-select mb-3" onchange="toggleMapButton()">
                     <option value="courier">Kurier do domu</option>
-                    <option value="pickup_point">Punkt Odbioru (Paczkomaty, DPD, Orlen itp.)</option>
+                    <option value="pickup_point">Punkt Odbioru</option>
                 </select>
 
                 <input type="hidden" name="pickup_point_id" id="pickup_point_id">
@@ -109,7 +109,7 @@
                 
                 document.getElementById('pickup_point_id').value = point.code; //save point id
 
-                const provider = point.provider || "Nieznany"; // company name
+                const provider = point.type || "Nieznany"; // company name
                 document.getElementById('pickup_point_network').value = provider;
                 
                 let fullAddress = point.name; 
