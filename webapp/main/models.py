@@ -188,3 +188,19 @@ class WishlistItem(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name}"
+    
+class HeroSlide(models.Model):
+    title = models.CharField(max_length=100, verbose_name="Tytuł slajdu")
+    description = models.TextField(verbose_name="Opis slajdu")
+    image = models.ImageField(upload_to='hero_slides/', verbose_name="Obraz slajdu")
+    link_url = models.CharField(max_length=200, blank=True, null=True, verbose_name="Link przycisku")
+    order = models.IntegerField(default=0, verbose_name="Kolejność wyświetlania")
+    is_active = models.BooleanField(default=True, verbose_name="Czy aktywny?")
+
+    class Meta:
+        verbose_name = "Slajd na stronie głównej"
+        verbose_name_plural = "Slajdy na stronie głównej"
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title

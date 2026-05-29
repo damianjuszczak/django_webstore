@@ -1,4 +1,4 @@
-from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem
+from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem, HeroSlide
 from .cart import Cart
 from .contact import ContactForm
 
@@ -16,13 +16,16 @@ from main.utilities import get_live_exchange_rates
 
 
 def index(request):
-    products = (
-        Product.objects.select_related("manufacturer")
-        .prefetch_related("images")
-        .filter(is_available=True)
-        .order_by("?")[:4]
-    )
-    return render(request, "main/index.html", {"products": products})
+    context = {
+        "hero_slides": HeroSlide.objects.all(),
+        "products": (
+            Product.objects.select_related("manufacturer")
+            .prefetch_related("images")
+            .filter(is_available=True)
+            .order_by("?")[:4]
+        ),
+    }
+    return render(request, "main/index.html", context)
 
 
 def contact(request):
