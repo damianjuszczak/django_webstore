@@ -139,6 +139,8 @@ class Order(models.Model):
     pickup_point_address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Adres punktu odbioru")
     pickup_point_network = models.CharField(max_length=50, blank=True, null=True, verbose_name="Firma (sieć) punktu")
 
+    paid = models.BooleanField(default=False, verbose_name="Opłacone")
+    stripe_id = models.CharField(max_length=250, blank=True, verbose_name="ID płatności Stripe")
     class Meta:
         ordering = ['-created_at']
 

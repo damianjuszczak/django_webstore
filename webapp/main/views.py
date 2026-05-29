@@ -1,3 +1,4 @@
+import stripe
 from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem
 from .cart import Cart
 from .contact import ContactForm
@@ -13,6 +14,7 @@ from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
 from django.conf import settings
 from main.utilities import get_live_exchange_rates
+from django.urls import reverse
 
 
 def index(request):
@@ -306,6 +308,8 @@ def profile_orders(request):
         {"user": request.user, "orders": orders, "active_tab": "orders"},
     )
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 @login_required
 @transaction.atomic
 def checkout(request):
@@ -351,8 +355,28 @@ def checkout(request):
         if added_count > 0:
             request.session["cart"] = {}
             request.session.modified = True
-            messages.success(request, "Zamówienie zostało złożone pomyślnie!")
-            return redirect("profile_orders")
+            session_data = {
+                'mode': 'payment',
+                'client_reference_id': order.id,
+                'success_url': request.build_absolute_uri(reverse('payment_success')) + "?session_id={CHECKOUT_SESSION_ID}",
+                'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
+                'line_items': []
+            }
+
+            for item in cart:
+                session_data['line_items'].append({
+                    'price_data': {
+                        'unit_amount': int(item['product'].price * 100),
+                        'currency': 'pln',
+                        'product_data': {
+                            'name': item['product'].name,
+                        },
+                    },
+                    'quantity': item['quantity'],
+                })
+
+            checkout_session = stripe.checkout.Session.create(**session_data)
+            return redirect(checkout_session.url, code=303)
         else:
             transaction.set_rollback(True)
             messages.error(request, "Brak produktów na stanie.")
@@ -599,3 +623,25 @@ def wishlist_remove(request, product_id):
         return redirect(previous_url)
     else:
         return redirect("home")
+
+@login_required
+def payment_success(request):
+    session_id = request.GET.get('session_id')
+    if session_id:
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            order_id = session.client_reference_id
+            order = Order.objects.get(id=order_id, user=request.user)
+            order.paid = True
+            order.stripe_id = session.payment_intent
+            order.save()
+            messages.success(request, "Płatność zakończona sukcesem!")
+        except stripe.error.StripeError:
+            messages.error(request, "Wystąpił błąd płatności.")
+            
+    return redirect('profile_orders')
+
+@login_required
+def payment_cancel(request):
+    messages.warning(request, "Płatność została anulowana.")
+    return redirect('profile_orders')
