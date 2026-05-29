@@ -130,6 +130,15 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    DELIVERY_CHOICES = [
+        ('courier', 'Kurier do domu'),
+        ('pickup_point', 'Punkt odbioru'),
+    ]
+    delivery_method = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default='courier')
+    pickup_point_id = models.CharField(max_length=100, blank=True, null=True, verbose_name="ID Punktu Odbioru")
+    pickup_point_address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Adres punktu odbioru")
+    pickup_point_network = models.CharField(max_length=50, blank=True, null=True, verbose_name="Firma (sieć) punktu")
+
     class Meta:
         ordering = ['-created_at']
 

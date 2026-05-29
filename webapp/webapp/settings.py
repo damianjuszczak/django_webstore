@@ -21,6 +21,7 @@ dotenv.load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
+FURGONETKA_API_KEY = os.environ.get('FURGONETKA_API_KEY')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -28,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True #show errors during program usage
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['showcase.test', 'localhost', '127.0.0.1']
 
 
 # Application definition
