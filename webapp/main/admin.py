@@ -1,11 +1,12 @@
 from django.contrib import admin
-from .models import Category, Manufacturer, Product, ProductImage, Order, OrderItem,ContactMessage, WishlistItem
+from .models import Category, Manufacturer, Product, ProductImage, Order, OrderItem,ContactMessage, WishlistItem, HeroSlide
 
 admin.site.register(Category)
 admin.site.register(Manufacturer)
 admin.site.register(Product)
 admin.site.register(ProductImage)
 admin.site.register(WishlistItem)
+admin.site.register(HeroSlide)
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
