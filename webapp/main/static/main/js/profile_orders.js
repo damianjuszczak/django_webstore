@@ -37,14 +37,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 const data = await response.json();
-                if (response.ok && data.status === 'success') {
-                    showNotification('success', data.message);
+            if (response.ok && data.status === 'success') {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
                 } else {
-                    showNotification('error', data.message);
+                    showNotification('success', data.message);
                 }
-            } catch (error) {
-                showNotification('error', 'Błąd połączenia z serwerem.')
+            } else {
+                showNotification('error', data.message);
             }
-        });
+        } catch (error) {
+            showNotification('error', 'Błąd połączenia z serwerem.');
+        }
     });
+});
 });

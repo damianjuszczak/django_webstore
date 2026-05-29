@@ -552,7 +552,6 @@ def order_renew(request, order_id):
 
     added_count = process_order_items(new_order, items_to_add, request)
 
-    referer_url = request.META.get("HTTP_REFERER", "")
     if added_count > 0:
         user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
         live_rates = get_live_exchange_rates()
@@ -587,14 +586,12 @@ def order_renew(request, order_id):
 
         try:
             checkout_session = stripe.checkout.Session.create(**session_data)
-            return redirect(checkout_session.url, code=303)
+            return JsonResponse({"status": "success", "redirect_url": checkout_session.url})
         except stripe.error.StripeError:
-            messages.error(request, "Wystąpił błąd podczas łączenia z płatnością.")
-            return redirect("profile_orders")
+            return JsonResponse({"status": "error", "message": "Wystąpił błąd podczas łączenia z płatnością."})
     else:
         transaction.set_rollback(True)
-        messages.error(request, "Produkty z tego zamówienia nie są już dostępne na stanie.")
-        return redirect("profile_orders")
+        return JsonResponse({"status": "error", "message": "Produkty z tego zamówienia nie są już dostępne na stanie."})
 
 
 @login_required
