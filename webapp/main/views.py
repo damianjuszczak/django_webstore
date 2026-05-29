@@ -447,17 +447,13 @@ def process_order_items(order, items_list, request):
         product = item["product"]
         quantity = item["quantity"]
 
-        updated = Product.objects.filter(id=product.id, stock__gte=quantity).update(
-            stock=F("stock") - quantity
-        )
-
-        if updated:
+        if product.stock >= quantity:
             OrderItem.objects.create(
                 order=order, product=product, price=product.price, quantity=quantity
             )
             items_added += 1
         else:
-            messages.warning(request, f"Produkt {product.name} jest niedostępny.")
+            messages.warning(request, f"Produkt {product.name} jest niedostępny w takiej ilości.")
     return items_added
 
 
@@ -646,12 +642,18 @@ def payment_success(request):
             session = stripe.checkout.Session.retrieve(session_id)
             order_id = session.client_reference_id
             order = Order.objects.get(id=order_id, user=request.user)
-            order.paid = True
-            order.status = 'paid'
-            order.stripe_id = session.payment_intent
-            order.save()
 
-            messages.success(request, "Płatność zakończona sukcesem!")
+            if not order.paid:
+                order.paid = True
+                order.status = 'paid'
+                order.stripe_id = session.payment_intent
+                order.save()
+                
+                for item in order.items.all(): #stock change after successfull payment
+                    Product.objects.filter(id=item.product.id).update(stock=F('stock') - item.quantity)
+                
+                messages.success(request, "Płatność zakończona sukcesem!")
+                
         except stripe.error.StripeError:
             messages.error(request, "Wystąpił błąd płatności.")
             

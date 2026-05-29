@@ -43,6 +43,7 @@ urlpatterns = [
 
     path('payment/success/', views.payment_success, name='payment_success'),
     path('payment/cancel/', views.payment_cancel, name='payment_cancel'),
+    path("order/<int:order_id>/pay/", views.order_pay, name="order_pay"),
 
     # Currency switcher
     path('change-currency/', views.change_currency, name='change_currency')

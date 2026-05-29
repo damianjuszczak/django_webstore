@@ -117,6 +117,11 @@
                             <span class="badge bg-success ms-2"><i class="fa-solid fa-check me-1"></i>Opłacone</span>
                         {% else %}
                             <span class="badge bg-danger ms-2"><i class="fa-solid fa-xmark me-1"></i>Nieopłacone</span>
+
+                            {% if order.status != 'cancelled' %}
+                             <a href="{% url 'order_pay' order.id %}" class="btn btn-success btn-sm ms-3">
+                               <i class="fa-solid fa-credit-card me-1"></i> Opłać teraz </a>
+                             {% endif %}
                         {% endif %}
                     </div>
                     
