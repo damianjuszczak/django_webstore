@@ -103,7 +103,6 @@
                             <div class="text-muted mt-1" style="font-size: 0.85rem;">
                                 Sieć: <strong class="text-dark">{{ order.pickup_point_network|title|default:"Punkt partnerski" }}</strong><br>
                                 Adres: <strong class="text-dark">{{ order.pickup_point_address|default:order.pickup_point_id }}</strong> 
-                                (Kod: {{ order.pickup_point_id }})
                             </div>
                         {% else %}
                             <span class="badge bg-secondary"><i class="fa-solid fa-truck me-1"></i> Kurier na adres domowy</span>

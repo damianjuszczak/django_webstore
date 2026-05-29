@@ -8,7 +8,7 @@
     
     <div class="row">
         <div class="col-md-7">
-            <form method="POST" action="{% url 'checkout' %}">
+            <form method="POST" action="{% url 'checkout' %}" id="checkout-form">
                 {% csrf_token %}
                 
                 <h4>Dane do wysyłki</h4>
@@ -58,7 +58,7 @@
                     </button>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 mt-3">Potwierdź i kup</button>
+                <button type="submit" class="btn btn-primary w-100 mt-3">Przejdź do płatności</button>
             </form>
         </div>
 
@@ -81,6 +81,16 @@
 <script src="https://furgonetka.pl/js/dist/map/map.js" async></script>
 
 <script>
+    // block purchase button if pickup is not selected
+    document.getElementById('checkout-form').addEventListener('submit', function(event) {
+        const deliveryMethod = document.getElementById('delivery_method').value;
+        const pickupPointId = document.getElementById('pickup_point_id').value;
+
+        if (deliveryMethod === 'pickup_point' && !pickupPointId) {
+            event.preventDefault(); 
+            alert('Proszę najpierw wybrać punkt odbioru na mapie!');
+        }
+    });
     // map visibility based on delivery method
     function toggleMapButton() { 
         const method = document.getElementById('delivery_method').value;

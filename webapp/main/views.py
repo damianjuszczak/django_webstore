@@ -317,8 +317,6 @@ def checkout(request):
     if len(cart) == 0:
         messages.error(request, "Twój koszyk jest pusty.")
         return redirect("cart")
-    
-    
 
     if request.method == "POST":
         first_name = request.POST.get("first_name")
@@ -332,6 +330,10 @@ def checkout(request):
         pickup_point_id = request.POST.get("pickup_point_id")
         pickup_point_address = request.POST.get("pickup_point_address")
         pickup_point_network = request.POST.get("pickup_point_network")
+
+        if delivery_method == "pickup_point" and not pickup_point_id:
+            messages.error(request, "Proszę wybrać punkt odbioru na mapie przed przejściem do płatności.")
+            return redirect("checkout")
 
         order = Order.objects.create(
             user=request.user,
@@ -355,9 +357,10 @@ def checkout(request):
         if added_count > 0:
             request.session["cart"] = {}
             request.session.modified = True
+            user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
             live_rates = get_live_exchange_rates()
             rate = live_rates.get(user_currency, 1.0)
-            user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
+
             session_data = {
                 'mode': 'payment',
                 'client_reference_id': order.id,
@@ -368,6 +371,7 @@ def checkout(request):
 
             for item in cart:
                 converted_price = float(item['product'].price) / float(rate)
+
                 session_data['line_items'].append({
                     'price_data': {
                         'unit_amount': int(converted_price * 100),
