@@ -19,10 +19,11 @@ def get_live_exchange_rates():
         all_rates = data.get('rates', {})
         allowed_currencies = ['PLN', 'EUR', 'USD']
 
+        filtered_rates = {k: v for k, v in all_rates.items() if k in allowed_currencies}
+
         if not filtered_rates:
             raise ValueError("API returned empty data")
         
-        filtered_rates = {k: v for k, v in all_rates.items() if k in allowed_currencies}
         
         #save cache for 1 hour
         cache.set('live_exchange_rates', filtered_rates, 3600)

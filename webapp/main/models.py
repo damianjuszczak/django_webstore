@@ -106,7 +106,8 @@ class Profile(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('new', 'Przyjęte do realizacji'),
+        ('new', 'Nowe (Nieopłacone)'),
+        ('paid', 'Opłacone (Do realizacji)'),
         ('processing', 'W trakcie realizacji'),
         ('shipped', 'Wysłane'),
         ('completed', 'Zrealizowane'),

@@ -1,4 +1,5 @@
 import stripe
+import math
 from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem
 from .cart import Cart
 from .contact import ContactForm
@@ -370,11 +371,16 @@ def checkout(request):
             }
 
             for item in cart:
-                converted_price = float(item['product'].price) / float(rate)
+                converted_price = float(item['product'].price) * float(rate)
+
+                if user_currency == getattr(settings, "DEFAULT_CURRENCY", "PLN"):
+                    final_price = converted_price
+                else:
+                    final_price = math.ceil(converted_price) - 0.01
 
                 session_data['line_items'].append({
                     'price_data': {
-                        'unit_amount': int(converted_price * 100),
+                        'unit_amount': int(final_price * 100),
                         'currency': user_currency.lower(),
                         'product_data': {
                             'name': item['product'].name,
@@ -641,8 +647,10 @@ def payment_success(request):
             order_id = session.client_reference_id
             order = Order.objects.get(id=order_id, user=request.user)
             order.paid = True
+            order.status = 'paid'
             order.stripe_id = session.payment_intent
             order.save()
+
             messages.success(request, "Płatność zakończona sukcesem!")
         except stripe.error.StripeError:
             messages.error(request, "Wystąpił błąd płatności.")

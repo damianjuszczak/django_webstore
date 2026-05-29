@@ -14,8 +14,15 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'first_name', 'last_name', 'email', 'status', 'created_at']
-    list_filter = ['status', 'created_at']
+    list_filter = ['paid', 'status', 'created_at', 'delivery_method']
+    search_fields = ['id', 'first_name', 'last_name', 'email', 'stripe_id']
     inlines = [OrderItemInline]
+    actions = ['mark_as_processing']
+
+    @admin.action(description="Zmień status zaznaczonych na 'W trakcie realizacji'")
+    def mark_as_processing(self, request, queryset):
+        updated = queryset.filter(paid=True).update(status='processing')
+        self.message_user(request, f"Zaktualizowano {updated} zamówień do statusu 'W trakcie realizacji'.")
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
