@@ -658,6 +658,52 @@ def payment_success(request):
     return redirect('profile_orders')
 
 @login_required
+def order_pay(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if order.paid or order.status == 'cancelled':
+        messages.error(request, "Tego zamówienia nie można już opłacić.")
+        return redirect('profile_orders')
+
+    user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
+    live_rates = get_live_exchange_rates()
+    rate = live_rates.get(user_currency, 1.0)
+
+    session_data = {
+        'mode': 'payment',
+        'client_reference_id': order.id,
+        'success_url': request.build_absolute_uri(reverse('payment_success')) + "?session_id={CHECKOUT_SESSION_ID}",
+        'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
+        'line_items': []
+    }
+
+    for item in order.items.all():
+        converted_price = float(item.price) * float(rate)
+        
+        if user_currency == getattr(settings, "DEFAULT_CURRENCY", "PLN"):
+            final_price = converted_price
+        else:
+            final_price = math.ceil(converted_price) - 0.01
+
+        session_data['line_items'].append({
+            'price_data': {
+                'unit_amount': int(final_price * 100),
+                'currency': user_currency.lower(),
+                'product_data': {
+                    'name': item.product.name,
+                },
+            },
+            'quantity': item.quantity,
+        })
+
+    try:
+        checkout_session = stripe.checkout.Session.create(**session_data)
+        return redirect(checkout_session.url, code=303)
+    except stripe.error.StripeError as e:
+        messages.error(request, "Wystąpił problem z płatnością.")
+        return redirect('profile_orders')
+
+@login_required
 def payment_cancel(request):
     messages.warning(request, "Płatność została anulowana.")
     return redirect('profile_orders')
