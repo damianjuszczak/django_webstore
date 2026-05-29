@@ -16,6 +16,8 @@ from django.views.decorators.http import require_POST
 from django.conf import settings
 from main.utilities import get_live_exchange_rates
 from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta
 
 
 def index(request):
@@ -302,7 +304,20 @@ def profile_info(request):
 
 @login_required
 def profile_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related("items__product")
+
+    time_threshold = timezone.now() - timedelta(hours=24)
+    
+    expired_orders = Order.objects.filter(
+        user=request.user,
+        paid=False,
+        created_at__lt=time_threshold
+    ).exclude(status='cancelled')
+    
+    if expired_orders.exists():
+        expired_orders.update(status='cancelled')
+        messages.warning(request, "Niektóre z Twoich nieopłaconych zamówień wygasły (minęły 24 godziny) i zostały anulowane.")
+
+    orders = Order.objects.filter(user=request.user).prefetch_related("items__product").order_by('-created_at')
     return render(
         request,
         "main/account/profile_orders.html",
@@ -539,28 +554,47 @@ def order_renew(request, order_id):
 
     referer_url = request.META.get("HTTP_REFERER", "")
     if added_count > 0:
-        if "/profile/orders" in referer_url:
-            return JsonResponse(
-                {
-                    "status": "success",
-                    "message": "Zamówienie zostało złożone.",
+        user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
+        live_rates = get_live_exchange_rates()
+        rate = live_rates.get(user_currency, 1.0)
+
+        session_data = {
+            'mode': 'payment',
+            'client_reference_id': new_order.id,
+            'success_url': request.build_absolute_uri(reverse('payment_success')) + "?session_id={CHECKOUT_SESSION_ID}",
+            'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
+            'line_items': []
+        }
+
+        for item in new_order.items.all():
+            converted_price = float(item.price) * float(rate)
+            
+            if user_currency == getattr(settings, "DEFAULT_CURRENCY", "PLN"):
+                final_price = converted_price
+            else:
+                final_price = math.ceil(converted_price) - 0.01
+
+            session_data['line_items'].append({
+                'price_data': {
+                    'unit_amount': int(final_price * 100),
+                    'currency': user_currency.lower(),
+                    'product_data': {
+                        'name': item.product.name,
+                    },
                 },
-                status=200,
-            )
+                'quantity': item.quantity,
+            })
 
-        else:
-            messages.success(request, "Zamówienie zostało złożone.")
+        try:
+            checkout_session = stripe.checkout.Session.create(**session_data)
+            return redirect(checkout_session.url, code=303)
+        except stripe.error.StripeError:
+            messages.error(request, "Wystąpił błąd podczas łączenia z płatnością.")
             return redirect("profile_orders")
-
     else:
         transaction.set_rollback(True)
-        if "/profile/orders" in referer_url:
-            return JsonResponse(
-                {"status": "error", "message": "Brak produktów na stanie."}, status=400
-            )
-        else:
-            messages.error(request, "Brak produktów na stanie.")
-            return redirect("profile_orders")
+        messages.error(request, "Produkty z tego zamówienia nie są już dostępne na stanie.")
+        return redirect("profile_orders")
 
 
 @login_required
@@ -665,6 +699,12 @@ def order_pay(request, order_id):
     
     if order.paid or order.status == 'cancelled':
         messages.error(request, "Tego zamówienia nie można już opłacić.")
+        return redirect('profile_orders')
+    
+    if order.created_at < timezone.now() - timedelta(hours=24):
+        order.status = 'cancelled'
+        order.save()
+        messages.error(request, "Zamówienie wygasło (minęły 24 godziny). Nie można go już opłacić.")
         return redirect('profile_orders')
 
     user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
