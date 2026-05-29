@@ -355,6 +355,9 @@ def checkout(request):
         if added_count > 0:
             request.session["cart"] = {}
             request.session.modified = True
+            live_rates = get_live_exchange_rates()
+            rate = live_rates.get(user_currency, 1.0)
+            user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
             session_data = {
                 'mode': 'payment',
                 'client_reference_id': order.id,
@@ -364,10 +367,11 @@ def checkout(request):
             }
 
             for item in cart:
+                converted_price = float(item['product'].price) / float(rate)
                 session_data['line_items'].append({
                     'price_data': {
-                        'unit_amount': int(item['product'].price * 100),
-                        'currency': 'pln',
+                        'unit_amount': int(converted_price * 100),
+                        'currency': user_currency.lower(),
                         'product_data': {
                             'name': item['product'].name,
                         },
