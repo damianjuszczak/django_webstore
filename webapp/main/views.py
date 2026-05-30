@@ -1,3 +1,6 @@
+import stripe
+import math
+from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem
 from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem, HeroSlide
 from .cart import Cart
 from .contact import ContactForm
@@ -13,6 +16,9 @@ from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
 from django.conf import settings
 from main.utilities import get_live_exchange_rates
+from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta
 
 
 def index(request):
@@ -303,12 +309,27 @@ def profile_info(request):
 
 @login_required
 def profile_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related("items__product")
+
+    time_threshold = timezone.now() - timedelta(hours=24)
+    
+    expired_orders = Order.objects.filter(
+        user=request.user,
+        paid=False,
+        created_at__lt=time_threshold
+    ).exclude(status='cancelled')
+    
+    if expired_orders.exists():
+        expired_orders.update(status='cancelled')
+        messages.warning(request, "Niektóre z Twoich nieopłaconych zamówień wygasły (minęły 24 godziny) i zostały anulowane.")
+
+    orders = Order.objects.filter(user=request.user).prefetch_related("items__product").order_by('-created_at')
     return render(
         request,
         "main/account/profile_orders.html",
         {"user": request.user, "orders": orders, "active_tab": "orders"},
     )
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
 @transaction.atomic
@@ -330,6 +351,10 @@ def checkout(request):
         pickup_point_id = request.POST.get("pickup_point_id")
         pickup_point_address = request.POST.get("pickup_point_address")
         pickup_point_network = request.POST.get("pickup_point_network")
+
+        if delivery_method == "pickup_point" and not pickup_point_id:
+            messages.error(request, "Proszę wybrać punkt odbioru na mapie przed przejściem do płatności.")
+            return redirect("checkout")
 
         order = Order.objects.create(
             user=request.user,
@@ -353,8 +378,39 @@ def checkout(request):
         if added_count > 0:
             request.session["cart"] = {}
             request.session.modified = True
-            messages.success(request, "Zamówienie zostało złożone pomyślnie!")
-            return redirect("profile_orders")
+            user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
+            live_rates = get_live_exchange_rates()
+            rate = live_rates.get(user_currency, 1.0)
+
+            session_data = {
+                'mode': 'payment',
+                'client_reference_id': order.id,
+                'success_url': request.build_absolute_uri(reverse('payment_success')) + "?session_id={CHECKOUT_SESSION_ID}",
+                'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
+                'line_items': []
+            }
+
+            for item in cart:
+                converted_price = float(item['product'].price) * float(rate)
+
+                if user_currency == getattr(settings, "DEFAULT_CURRENCY", "PLN"):
+                    final_price = converted_price
+                else:
+                    final_price = math.ceil(converted_price) - 0.01
+
+                session_data['line_items'].append({
+                    'price_data': {
+                        'unit_amount': int(final_price * 100),
+                        'currency': user_currency.lower(),
+                        'product_data': {
+                            'name': item['product'].name,
+                        },
+                    },
+                    'quantity': item['quantity'],
+                })
+
+            checkout_session = stripe.checkout.Session.create(**session_data)
+            return redirect(checkout_session.url, code=303)
         else:
             transaction.set_rollback(True)
             messages.error(request, "Brak produktów na stanie.")
@@ -411,17 +467,13 @@ def process_order_items(order, items_list, request):
         product = item["product"]
         quantity = item["quantity"]
 
-        updated = Product.objects.filter(id=product.id, stock__gte=quantity).update(
-            stock=F("stock") - quantity
-        )
-
-        if updated:
+        if product.stock >= quantity:
             OrderItem.objects.create(
                 order=order, product=product, price=product.price, quantity=quantity
             )
             items_added += 1
         else:
-            messages.warning(request, f"Produkt {product.name} jest niedostępny.")
+            messages.warning(request, f"Produkt {product.name} jest niedostępny w takiej ilości.")
     return items_added
 
 
@@ -505,30 +557,46 @@ def order_renew(request, order_id):
 
     added_count = process_order_items(new_order, items_to_add, request)
 
-    referer_url = request.META.get("HTTP_REFERER", "")
     if added_count > 0:
-        if "/profile/orders" in referer_url:
-            return JsonResponse(
-                {
-                    "status": "success",
-                    "message": "Zamówienie zostało złożone.",
+        user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
+        live_rates = get_live_exchange_rates()
+        rate = live_rates.get(user_currency, 1.0)
+
+        session_data = {
+            'mode': 'payment',
+            'client_reference_id': new_order.id,
+            'success_url': request.build_absolute_uri(reverse('payment_success')) + "?session_id={CHECKOUT_SESSION_ID}",
+            'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
+            'line_items': []
+        }
+
+        for item in new_order.items.all():
+            converted_price = float(item.price) * float(rate)
+            
+            if user_currency == getattr(settings, "DEFAULT_CURRENCY", "PLN"):
+                final_price = converted_price
+            else:
+                final_price = math.ceil(converted_price) - 0.01
+
+            session_data['line_items'].append({
+                'price_data': {
+                    'unit_amount': int(final_price * 100),
+                    'currency': user_currency.lower(),
+                    'product_data': {
+                        'name': item.product.name,
+                    },
                 },
-                status=200,
-            )
+                'quantity': item.quantity,
+            })
 
-        else:
-            messages.success(request, "Zamówienie zostało złożone.")
-            return redirect("profile_orders")
-
+        try:
+            checkout_session = stripe.checkout.Session.create(**session_data)
+            return JsonResponse({"status": "success", "redirect_url": checkout_session.url})
+        except stripe.error.StripeError:
+            return JsonResponse({"status": "error", "message": "Wystąpił błąd podczas łączenia z płatnością."})
     else:
         transaction.set_rollback(True)
-        if "/profile/orders" in referer_url:
-            return JsonResponse(
-                {"status": "error", "message": "Brak produktów na stanie."}, status=400
-            )
-        else:
-            messages.error(request, "Brak produktów na stanie.")
-            return redirect("profile_orders")
+        return JsonResponse({"status": "error", "message": "Produkty z tego zamówienia nie są już dostępne na stanie."})
 
 
 @login_required
@@ -601,3 +669,85 @@ def wishlist_remove(request, product_id):
         return redirect(previous_url)
     else:
         return redirect("home")
+
+@login_required
+def payment_success(request):
+    session_id = request.GET.get('session_id')
+    if session_id:
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            order_id = session.client_reference_id
+            order = Order.objects.get(id=order_id, user=request.user)
+
+            if not order.paid:
+                order.paid = True
+                order.status = 'paid'
+                order.stripe_id = session.payment_intent
+                order.save()
+                
+                for item in order.items.all(): #stock change after successfull payment
+                    Product.objects.filter(id=item.product.id).update(stock=F('stock') - item.quantity)
+                
+                messages.success(request, "Płatność zakończona sukcesem!")
+                
+        except stripe.error.StripeError:
+            messages.error(request, "Wystąpił błąd płatności.")
+            
+    return redirect('profile_orders')
+
+@login_required
+def order_pay(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if order.paid or order.status == 'cancelled':
+        messages.error(request, "Tego zamówienia nie można już opłacić.")
+        return redirect('profile_orders')
+    
+    if order.created_at < timezone.now() - timedelta(hours=24):
+        order.status = 'cancelled'
+        order.save()
+        messages.error(request, "Zamówienie wygasło (minęły 24 godziny). Nie można go już opłacić.")
+        return redirect('profile_orders')
+
+    user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
+    live_rates = get_live_exchange_rates()
+    rate = live_rates.get(user_currency, 1.0)
+
+    session_data = {
+        'mode': 'payment',
+        'client_reference_id': order.id,
+        'success_url': request.build_absolute_uri(reverse('payment_success')) + "?session_id={CHECKOUT_SESSION_ID}",
+        'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
+        'line_items': []
+    }
+
+    for item in order.items.all():
+        converted_price = float(item.price) * float(rate)
+        
+        if user_currency == getattr(settings, "DEFAULT_CURRENCY", "PLN"):
+            final_price = converted_price
+        else:
+            final_price = math.ceil(converted_price) - 0.01
+
+        session_data['line_items'].append({
+            'price_data': {
+                'unit_amount': int(final_price * 100),
+                'currency': user_currency.lower(),
+                'product_data': {
+                    'name': item.product.name,
+                },
+            },
+            'quantity': item.quantity,
+        })
+
+    try:
+        checkout_session = stripe.checkout.Session.create(**session_data)
+        return redirect(checkout_session.url, code=303)
+    except stripe.error.StripeError as e:
+        messages.error(request, "Wystąpił problem z płatnością.")
+        return redirect('profile_orders')
+
+@login_required
+def payment_cancel(request):
+    messages.warning(request, "Płatność została anulowana.")
+    return redirect('profile_orders')

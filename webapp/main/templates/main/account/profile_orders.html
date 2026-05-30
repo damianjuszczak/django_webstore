@@ -18,7 +18,8 @@
                 <div class="d-flex justify-content-between align-items-center m-2">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge small px-2 py-1 
-                            {% if order.status == 'new' %} bg-warning text-dark
+                            {% if order.status == 'new' %} bg-dark text-white
+                            {% elif order.status == 'paid' %} bg-primary
                             {% elif order.status == 'processing' %} bg-primary
                             {% elif order.status == 'shipped' %} bg-info text-dark
                             {% elif order.status == 'completed' %} bg-success
@@ -99,11 +100,10 @@
                     <div>
                         <span class="text-muted d-block mb-1" style="font-size: 0.85rem;">Metoda dostawy:</span>
                         {% if order.delivery_method == 'pickup_point' %}
-                            <span class="badge bg-info text-dark"><i class="fa-solid fa-box me-1"></i> Punkt Odbioru</span>
+                            <span class="badge bg-dark text-white"><i class="fa-solid fa-box me-1"></i> Punkt Odbioru</span>
                             <div class="text-muted mt-1" style="font-size: 0.85rem;">
                                 Sieć: <strong class="text-dark">{{ order.pickup_point_network|title|default:"Punkt partnerski" }}</strong><br>
                                 Adres: <strong class="text-dark">{{ order.pickup_point_address|default:order.pickup_point_id }}</strong> 
-                                (Kod: {{ order.pickup_point_id }})
                             </div>
                         {% else %}
                             <span class="badge bg-secondary"><i class="fa-solid fa-truck me-1"></i> Kurier na adres domowy</span>
@@ -111,8 +111,24 @@
                     </div>
                 </div>
                 <div class="card-footer py-3 m-2 border-top-0 d-flex justify-content-between align-items-center">
-                    <span class="text-muted">Wartość całkowita:</span>
-                    <h4 class="badge bg-secondary mb-0 fw-bold fs-6">{% convert_price order.get_total_price %}</h4>
+                    <div>
+                        <span class="text-muted">Status płatności:</span>
+                        {% if order.paid %}
+                            <span class="badge bg-success ms-2"><i class="fa-solid fa-check me-1"></i>Opłacone</span>
+                        {% else %}
+                            <span class="badge bg-danger ms-2"><i class="fa-solid fa-xmark me-1"></i>Nieopłacone</span>
+
+                            {% if order.status != 'cancelled' %}
+                             <a href="{% url 'order_pay' order.id %}" class="btn btn-success btn-sm ms-3">
+                               <i class="fa-solid fa-credit-card me-1"></i> Opłać teraz </a>
+                             {% endif %}
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <span class="text-muted">Wartość całkowita:</span>
+                        <h4 class="badge bg-secondary mb-0 fw-bold fs-6 ms-2">{% convert_price order.get_total_price %}</h4>
+                    </div>
                 </div>
             </div>
         {% empty %}
