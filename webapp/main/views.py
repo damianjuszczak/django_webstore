@@ -1,6 +1,7 @@
 import stripe
 import math
 from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem
+from .models import Product, Profile, Category, Order, OrderItem, ContactMessage, WishlistItem, HeroSlide
 from .cart import Cart
 from .contact import ContactForm
 
@@ -21,13 +22,16 @@ from datetime import timedelta
 
 
 def index(request):
-    products = (
-        Product.objects.select_related("manufacturer")
-        .prefetch_related("images")
-        .filter(is_available=True)
-        .order_by("?")[:4]
-    )
-    return render(request, "main/index.html", {"products": products})
+    context = {
+        "hero_slides": HeroSlide.objects.all(),
+        "products": (
+            Product.objects.select_related("manufacturer")
+            .prefetch_related("images")
+            .filter(is_available=True)
+            .order_by("?")[:4]
+        ),
+    }
+    return render(request, "main/index.html", context)
 
 
 def contact(request):
@@ -163,6 +167,7 @@ def category_details(request, category_slug):
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
+    in_wishlist = False
     if request.user.is_authenticated:
         in_wishlist = WishlistItem.objects.filter(user=request.user, product=product).exists()
     return render(request, "main/product_details.html", {"product": product, "in_wishlist": in_wishlist})

@@ -206,3 +206,38 @@ body {
 }
 /* KONIEC CSSA DLA STRONY LISTY ŻYCZEŃ */
 /*--------------------------------------------------*/
+<<<<<<< HEAD
+
+/* hero-slider */
+/* delikatny cień pod tekstem w sliderze */
+.text-shadow {
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    }
+
+/* Stylowanie lewego i prawego obszaru najechania */
+    .custom-darken {
+        width: 12%; /* Jak duży obszar od boku ma reagować przyciemnieniem (np. 12% szerokości baneru) */
+        transition: background-color 0.4s ease; /* Płynne wejście i wyjście efektu */
+        background-color: transparent; /* Domyślnie boki są idealnie przezroczyste */
+    }
+
+    /* Efekt po najechaniu myszką na lewą strzałkę */
+    .carousel-control-prev.custom-darken:hover {
+        /* Tworzymy elegancki gradient od czerni (z lewej) do przezroczystości (do środka) */
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+    }
+
+    /* Efekt po najechaniu myszką na prawą strzałkę */
+    .carousel-control-next.custom-darken:hover {
+        /* Tworzymy gradient od przezroczystości do czerni (z prawej) */
+        background: linear-gradient(to left, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+    }
+    
+    /* Poprawka dla płynności ruchu w Bootstrapie */
+    .carousel-item {
+        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+    }
+/* koniec hero-slider */
+/* -------------------------------------------------*/
+=======
+>>>>>>> main
