@@ -172,16 +172,27 @@ class OrderItem(models.Model):
         if not self.price:
             self.price = self.product.price
         super().save(*args, **kwargs)
+        
 class ContactMessage(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contact_messages',
+        verbose_name="Użytkownik",
+    )
     email = models.EmailField(verbose_name="Email")
     title = models.CharField(max_length=100, verbose_name="Tytuł")
     message = models.TextField(verbose_name="Treść wiadomości")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data utworzenia")
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Data utworzenia"
+    )
 
     class Meta:
         verbose_name = "Wiadomość kontaktowa"
         verbose_name_plural = "Wiadomości kontaktowe"
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.email} - {self.title}"

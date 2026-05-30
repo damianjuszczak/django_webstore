@@ -5,27 +5,40 @@
         <h3 class="fw-bold d-flex justify-content-between align-items-center mb-0">
             <span class="mb-0">Twoje zgłoszenia</span>
         </h3>
-        <p class="text-muted">Wszytskie twoje zgłoszenia w jednym miejscu</p>
+        <p class="text-muted">Wszystkie Twoje zgłoszenia w jednym miejscu</p>
         <hr class="mb-4">
-        <p>Funckjonalność w trakcie realizacji...</p>
-        <!-- {% for message in messages %}
-            <div style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px;">
-                Zamówienie - {{ order.created_at|date:"d.m.Y H:i" }}
-                <p>Status: {{ order.get_status_display }}</p>
-                
-                <ul>
-                {% for item in order.items.all %}
-                    <li>
-                        {{ item.product.name }} — {{ item.quantity }} szt. x {{ item.price }} zł 
-                        (Suma: {{ item.get_total_price }} zł)
-                    </li>
-                {% endfor %}
-                </ul>
-                
-                <p><strong>Łącznie do zapłaty: {{ order.get_total_price }} zł</strong></p>
+
+        {% if reports %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" style="width: 20%;">Data</th>
+                            <th scope="col" style="width: 25%;">Tytuł</th>
+                            <th scope="col" style="width: 55%;">Treść wiadomości</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                            <tr>
+                                <td class="text-nowrap text-muted">
+                                    {{ report.created_at|date:"d.m.Y H:i" }}
+                                </td>
+                                <td>
+                                    <strong>{{ report.title }}</strong>
+                                </td>
+                                <td class="text-secondary">
+                                    {{ report.message|linebreaksbr }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        {% empty %} -->
-            
-        {% endfor %}
+        {% else %}
+            <div class="alert alert-info border-0 shadow-sm" role="alert">
+                <i class="bi bi-info-circle me-2"></i> Nie wysłałeś jeszcze żadnych zgłoszeń za pomocą formularza kontaktowego.
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

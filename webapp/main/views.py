@@ -39,11 +39,16 @@ def contact(request):
         form = ContactForm(request.POST)
 
         if form.is_valid():
+            current_user = (
+                request.user if request.user.is_authenticated else None
+            )
             ContactMessage.objects.create(
+                user=current_user,
                 email=form.cleaned_data["email"],
                 title=form.cleaned_data["title"],
                 message=form.cleaned_data["message"],
             )
+
             messages.success(
                 request, "Dziękujemy za kontakt! Twoja wiadomość została zapisana."
             )
@@ -306,7 +311,6 @@ def profile_info(request):
         {"user": request.user, "active_tab": "info"},
     )
 
-
 @login_required
 def profile_orders(request):
 
@@ -327,6 +331,21 @@ def profile_orders(request):
         request,
         "main/account/profile_orders.html",
         {"user": request.user, "orders": orders, "active_tab": "orders"},
+    )
+
+@login_required
+def profile_reports(request):
+    user_reports = ContactMessage.objects.filter(user=request.user).order_by(
+        "-created_at"
+    )
+    return render(
+        request,
+        "main/account/profile_reports.html",
+        {
+            "user": request.user,
+            "reports": user_reports,
+            "active_tab": "reports",
+        },
     )
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -433,16 +452,6 @@ def checkout(request):
     }
 
     return render(request, "main/checkout.html", context)
-
-
-@login_required
-def profile_reports(request):
-    return render(
-        request,
-        "main/account/profile_reports.html",
-        {"user": request.user, "active_tab": "reports"},
-    )
-
 
 @login_required
 @require_POST
