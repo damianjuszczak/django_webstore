@@ -161,6 +161,7 @@ def category_details(request, category_slug):
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug, is_available=True)
+    in_wishlist = False
     if request.user.is_authenticated:
         in_wishlist = WishlistItem.objects.filter(user=request.user, product=product).exists()
     return render(request, "main/product_details.html", {"product": product, "in_wishlist": in_wishlist})
@@ -316,8 +317,6 @@ def checkout(request):
     if len(cart) == 0:
         messages.error(request, "Twój koszyk jest pusty.")
         return redirect("cart")
-    
-    
 
     if request.method == "POST":
         first_name = request.POST.get("first_name")
