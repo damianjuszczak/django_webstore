@@ -718,6 +718,13 @@ def order_pay(request, order_id):
         messages.error(request, "Zamówienie wygasło (minęły 24 godziny). Nie można go już opłacić.")
         return redirect('profile_orders')
 
+    for item in order.items.all():
+        if item.product.stock < item.quantity:
+            messages.error(
+                request, 
+                f"Przepraszamy, produkt '{item.product.name}' jest niedostępny. ")
+            return redirect('profile_orders')
+
     user_currency = request.session.get("currency", getattr(settings, "DEFAULT_CURRENCY", "PLN"))
     live_rates = get_live_exchange_rates()
     rate = live_rates.get(user_currency, 1.0)
