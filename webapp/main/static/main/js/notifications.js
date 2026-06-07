@@ -35,7 +35,7 @@ function showNotification(tag, message) {
         }, 500);
     };
 
-    notificationTimer = setTimeout(removeNotification, 3000);
+    notificationTimer = setTimeout(removeNotification, 4500);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
