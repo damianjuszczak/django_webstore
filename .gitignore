@@ -15,7 +15,6 @@ env/
 webapp/.env
 
 # --- Foldery lokalne / Media ---
-media/
 
 # --- CSV file
 products.csv
