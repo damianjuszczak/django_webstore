@@ -30,7 +30,7 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #show errors during program usage
+DEBUG = False #show errors during program usage
 
 ALLOWED_HOSTS = ['showcase.test', 'localhost', '127.0.0.1']
 
