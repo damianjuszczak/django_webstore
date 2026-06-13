@@ -108,7 +108,7 @@ Musisz zmapować tę domenę w swoim systemie na adres lokalny `127.0.0.1`:
 4. Zapisz plik.
 
 ### 5. Zmienne środowiskowe (.env)
-Przejdź do folderu `webapp` i utwórz plik tekstowy. Wklej do niego poniższą konfigurację:
+Przejdź do folderu `webapp` i utwórz plik `.env` Wklej do niego poniższą konfigurację:
 ```env
 SECRET_KEY=
 DATABASE_URL=
@@ -118,13 +118,6 @@ STRIPE_SECRET_KEY=
 ```
 *uzupełnij brakujące klucze udostępnione przez autorów*
 
-zapisz, następnie w górnej części folderu, w którym się znajdujesz, w zakladce **widok** włącz pokazywanie rozszerzen nazw plikow:
-
-windows 11
-
-windows 10
-
-zmień nazwę pliku tekstowego na ```.env``` i zapisz
 
 ### 6. Migracje bazy danych
 Zastosuj strukturę bazy danych:
@@ -158,7 +151,6 @@ django_webstore/
 │   ├── manage.py                   # Główny skrypt zarządzający projektem
 │   ├── requirements.txt            # Lista zależności projektowych
 │   ├── .env                        # (Należy utworzyć) Plik konfiguracyjny
-│   ├── db.sqlite3                  # (Opcjonalnie) Lokalna baza danych
 │   │
 │   ├── webapp/                     # Główne ustawienia projektu
 │   │   ├── settings.py             # Konfiguracja Django
@@ -187,7 +179,7 @@ django_webstore/
 │   │       ├── import_products.py  # Importowanie danych testowych
 │   │       └── generate_ai_images.py # Generowanie zdjęć produktów przy pomocy Ai
 │   │
-│   └── media/                      # Pliki wgrane przez użytkowników
+│   └── media/                      
 │       ├── products/gallery/       # Zdjęcia produktów
 │       └── hero_slides/            # Obrazy do slidera na stronie głównej
 │
