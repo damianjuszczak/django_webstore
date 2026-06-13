@@ -2,6 +2,10 @@
 
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.static import serve
+from django.urls import re_path
 
 urlpatterns = [
     # Standard pages
@@ -49,3 +53,8 @@ urlpatterns = [
     path('change-currency/', views.change_currency, name='change_currency')
     
 ]
+# media load when debug off
+if not settings.DEBUG:
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+        ]
